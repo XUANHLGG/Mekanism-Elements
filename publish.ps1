@@ -388,14 +388,9 @@ function Upload-ToGitHubRelease([string]$version, [array]$artifacts) {
   
   # Upload artifacts
   # GitHub requires using uploads.github.com for asset uploads, not api.github.com
-  # Use upload_url from release response if available, otherwise construct it manually
-  if ($releaseResponse.upload_url) {
-    # Extract base URL from upload_url template (remove {?name,label} part)
-    $uploadUrl = $releaseResponse.upload_url -replace '\{.*$', ''
-  } else {
-    $uploadsBase = "https://uploads.github.com"
-    $uploadUrl = "$uploadsBase/repos/$repoPath/releases/$releaseId/assets"
-  }
+  # Construct upload URL manually for reliability
+  $uploadsBase = "https://uploads.github.com"
+  $uploadUrlBase = "$uploadsBase/repos/$repoPath/releases/$releaseId/assets"
   Write-Host "Uploading $($artifacts.Count) artifact(s) to GitHub release..."
   
   foreach ($artifact in $artifacts) {
@@ -407,27 +402,40 @@ function Upload-ToGitHubRelease([string]$version, [array]$artifacts) {
     
     # GitHub release asset upload API expects raw file content
     # The upload URL should include ?name= parameter
-      $uploadUrlWithName = "$uploadUrl?name=$([System.Web.HttpUtility]::UrlEncode($fileName))"
-      
-      $uploadHeaders = @{
-        "Authorization" = "token $script:GitHubToken"
-        "Accept" = "application/vnd.github.v3+json"
-        "Content-Type" = "application/java-archive"
+    # Use PowerShell's built-in URI encoding
+    $encodedFileName = [Uri]::EscapeDataString($fileName)
+    $uploadUrlWithName = "$uploadUrlBase?name=$encodedFileName"
+    
+    # Validate URL before attempting upload
+    try {
+      $uri = [Uri]::new($uploadUrlWithName)
+      if (-not $uri.IsAbsoluteUri) {
+        throw "Upload URL is not absolute: $uploadUrlWithName"
       }
+    } catch {
+      Write-Warning "Invalid upload URL: $uploadUrlWithName - $_"
+      throw
+    }
       
-      try {
-        # Use HttpClient for reliable file uploads
-        Add-Type -AssemblyName System.Net.Http
-        
-        $httpClient = New-Object System.Net.Http.HttpClient
-        $httpClient.DefaultRequestHeaders.Add("Authorization", "token $script:GitHubToken")
-        $httpClient.DefaultRequestHeaders.Add("Accept", "application/vnd.github.v3+json")
+    $uploadHeaders = @{
+      "Authorization" = "token $script:GitHubToken"
+      "Accept" = "application/vnd.github.v3+json"
+      "Content-Type" = "application/java-archive"
+    }
+      
+    try {
+      # Use HttpClient for reliable file uploads
+      Add-Type -AssemblyName System.Net.Http
+      
+      $httpClient = New-Object System.Net.Http.HttpClient
+      $httpClient.DefaultRequestHeaders.Add("Authorization", "token $script:GitHubToken")
+      $httpClient.DefaultRequestHeaders.Add("Accept", "application/vnd.github.v3+json")
       
       $fileStream = [System.IO.File]::OpenRead($filePath)
       $streamContent = New-Object System.Net.Http.StreamContent($fileStream)
       $streamContent.Headers.ContentType = New-Object System.Net.Http.Headers.MediaTypeHeaderValue("application/java-archive")
       
-      $response = $httpClient.PostAsync($uploadUrlWithName, $streamContent).Result
+      $response = $httpClient.PostAsync($uri, $streamContent).Result
       
       $fileStream.Close()
       $httpClient.Dispose()
@@ -442,7 +450,7 @@ function Upload-ToGitHubRelease([string]$version, [array]$artifacts) {
       # Fallback to Invoke-WebRequest if HttpClient fails
       try {
         $fileBytes = [System.IO.File]::ReadAllBytes($filePath)
-        $response = Invoke-WebRequest -Uri $uploadUrlWithName -Method Post -Headers $uploadHeaders -Body $fileBytes -ContentType "application/java-archive"
+        $response = Invoke-WebRequest -Uri $uri -Method Post -Headers $uploadHeaders -Body $fileBytes -ContentType "application/java-archive"
         
         if ($response.StatusCode -eq 201) {
           Write-Host "  [OK] Uploaded ${fileName}"
