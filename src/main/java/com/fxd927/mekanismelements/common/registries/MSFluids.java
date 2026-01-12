@@ -32,15 +32,21 @@ public class MSFluids {
     public static final FluidRegistryObject<FluidDeferredRegister.MekanismFluidType, ?, ?, LiquidBlock, BucketItem> POTASSIUM_CYANIDE = FLUIDS.registerLiquidChemical(MSChemicalConstants.POTASSIUM_CYANIDE);
     public static final FluidRegistryObject<FluidDeferredRegister.MekanismFluidType, ?, ?, LiquidBlock, BucketItem> POTASSIUM_HYDROXIDE = FLUIDS.registerLiquidChemical(MSChemicalConstants.POTASSIUM_HYDROXIDE);
     public static final FluidRegistryObject<FluidDeferredRegister.MekanismFluidType, ?, ?, LiquidBlock, BucketItem> POTASSIUM_IODIDE = FLUIDS.registerLiquidChemical(MSChemicalConstants.POTASSIUM_IODIDE);
-    public static final FluidRegistryObject<FluidDeferredRegister.MekanismFluidType, ?, ?, LiquidBlock, BucketItem> SEAWATER = FLUIDS.register("seawater", 
+    /**
+     * Seawater uses custom still/flow textures.
+     *
+     * IMPORTANT: Fluid sprites must be stitched into the vanilla blocks atlas. The most reliable way
+     * is keeping the textures under textures/block/... (like 1.20.x-era conventions).
+     */
+    public static final FluidRegistryObject<FluidDeferredRegister.MekanismFluidType, ?, ?, LiquidBlock, BucketItem> SEAWATER = FLUIDS.register("seawater",
           properties -> properties
-              .temperature(Math.round(MSChemicalConstants.SEAWATER.getTemperature()))
-              .density(Math.round(MSChemicalConstants.SEAWATER.getDensity()))
-              .viscosity(Math.round(MSChemicalConstants.SEAWATER.getDensity()))
-              .lightLevel(MSChemicalConstants.SEAWATER.getLightLevel()), 
+                .temperature(Math.round(MSChemicalConstants.SEAWATER.getTemperature()))
+                .density(Math.round(MSChemicalConstants.SEAWATER.getDensity()))
+                .viscosity(Math.round(MSChemicalConstants.SEAWATER.getDensity()))
+                .lightLevel(MSChemicalConstants.SEAWATER.getLightLevel()),
           renderProperties -> renderProperties
-              .texture(rl("liquid/seawater_still"), rl("liquid/seawater_flow"))
-              .tint(MSChemicalConstants.SEAWATER.getColor()));
+                .texture(rl("block/liquid/seawater_still"), rl("block/liquid/seawater_flow"))
+                .tint(MSChemicalConstants.SEAWATER.getColor()));
     public static final FluidRegistryObject<FluidDeferredRegister.MekanismFluidType, ?, ?, LiquidBlock, BucketItem> STRONTIUM = FLUIDS.registerLiquidChemical(MSChemicalConstants.STRONTIUM);
     public static final FluidRegistryObject<FluidDeferredRegister.MekanismFluidType, ?, ?, LiquidBlock, BucketItem> XENON = FLUIDS.registerLiquidChemical(MSChemicalConstants.XENON);
     public static final FluidRegistryObject<FluidDeferredRegister.MekanismFluidType, ?, ?, LiquidBlock, BucketItem> YTTRIUM = FLUIDS.registerLiquidChemical(MSChemicalConstants.YTTRIUM);
