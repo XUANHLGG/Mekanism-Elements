@@ -10,6 +10,18 @@
   - Commits, tags vX.Y.Z, pushes branch + tag to origin.
   - Builds the mod using Gradle.
   - Creates a GitHub release and uploads JAR artifacts.
+  - Optionally uploads the main JAR to CurseForge if env vars are set.
+
+  CurseForge env vars (optional):
+    - CF_PROJECT_ID (or CURSEFORGE_PROJECT_ID / CF_PRODUCT_ID / CURSEFORGE_PRODUCT_ID)
+    - CF_API_TOKEN  (or CF_API_KEY / CURSEFORGE_API_TOKEN / CURSEFORGE_API_KEY)
+    - CF_GAME_VERSION_IDS: comma-separated numeric version IDs (e.g. "9990,68441")
+        - Required by CurseForge Upload API. Includes Minecraft version ID and (optionally) mod loader ID.
+        - If omitted, the script attempts to auto-resolve IDs via /api/game/versions using minecraft_version from gradle.properties,
+          and (if detected) a loader name (default: "NeoForge").
+    - CF_RELEASE_TYPE: release | beta | alpha (default: release)
+    - CF_CHANGELOG_FILE: optional path to a changelog file (markdown/text)
+    - CF_BASE_URL: optional base URL for the upload API (default: https://minecraft.curseforge.com)
 
 .PARAMETER Bump
   patch | minor | major
@@ -57,7 +69,10 @@ param(
 
   # GitHub options
   [string]$GitHubToken = $env:GITHUB_TOKEN,
-  [string]$GitHubRepo
+  [string]$GitHubRepo,
+
+  # If set, skip CurseForge upload even if env vars are present.
+  [switch]$SkipCurseForge
 )
 
 $ErrorActionPreference = "Stop"
@@ -268,6 +283,197 @@ function Find-BuildArtifacts() {
   }
   
   return $artifacts
+}
+
+function Get-EnvAny([string[]]$Names) {
+  foreach ($n in $Names) {
+    try {
+      $v = (Get-Item -Path ("Env:{0}" -f $n) -ErrorAction Stop).Value
+      if (-not [string]::IsNullOrWhiteSpace($v)) { return $v }
+    } catch {
+      # ignore missing
+    }
+  }
+  return $null
+}
+
+function Get-CurseForgeConfig() {
+  $projectId = Get-EnvAny @("CF_PROJECT_ID", "CURSEFORGE_PROJECT_ID", "CF_PRODUCT_ID", "CURSEFORGE_PRODUCT_ID")
+  $token = Get-EnvAny @("CF_API_TOKEN", "CF_API_KEY", "CURSEFORGE_API_TOKEN", "CURSEFORGE_API_KEY")
+  $baseUrl = Get-EnvAny @("CF_BASE_URL")
+  if (-not $baseUrl) { $baseUrl = "https://minecraft.curseforge.com" }
+
+  return @{
+    ProjectId = $projectId
+    Token = $token
+    BaseUrl = $baseUrl.TrimEnd("/")
+    ReleaseType = (Get-EnvAny @("CF_RELEASE_TYPE"))
+    GameVersionIdsRaw = (Get-EnvAny @("CF_GAME_VERSION_IDS"))
+    ChangelogFile = (Get-EnvAny @("CF_CHANGELOG_FILE"))
+    ModLoaderName = (Get-EnvAny @("CF_MOD_LOADER", "CF_MODLOADER", "CF_LOADER")) # optional; e.g. "NeoForge"
+  }
+}
+
+function Get-CurseForgeGameVersions([hashtable]$cf) {
+  # Unofficial but widely used endpoint for the Upload API host.
+  $uri = "$($cf.BaseUrl)/api/game/versions"
+  $headers = @{ "X-Api-Token" = $cf.Token }
+  return Invoke-RestMethod -Uri $uri -Headers $headers -Method Get -ErrorAction Stop
+}
+
+function Resolve-CurseForgeGameVersionIds([hashtable]$cf, [string]$minecraftVersion) {
+  # Prefer explicit IDs if user supplied them.
+  if (-not [string]::IsNullOrWhiteSpace($cf.GameVersionIdsRaw)) {
+    $ids = @()
+    foreach ($part in ($cf.GameVersionIdsRaw -split "[,;\s]+" | Where-Object { $_ })) {
+      $t = $part.Trim()
+      if ($t -match '^\d+$') {
+        $ids += [int]$t
+      } else {
+        throw "CF_GAME_VERSION_IDS contains a non-numeric value: '$t'"
+      }
+    }
+    if ($ids.Count -eq 0) { throw "CF_GAME_VERSION_IDS was provided but no IDs could be parsed." }
+    return $ids
+  }
+
+  # Auto-resolve via /api/game/versions (best effort).
+  $all = Get-CurseForgeGameVersions $cf
+  if (-not $all) { throw "Failed to retrieve CurseForge game versions from $($cf.BaseUrl)/api/game/versions" }
+
+  $resolved = @()
+
+  $mc = $all | Where-Object {
+    ($_.name -eq $minecraftVersion) -or ($_.versionString -eq $minecraftVersion) -or ($_.slug -eq $minecraftVersion)
+  } | Select-Object -First 1
+
+  if ($mc -and $mc.id) { $resolved += [int]$mc.id }
+
+  # If this is a loader-specific build, also try to include the loader ID.
+  $loaderName = $cf.ModLoaderName
+  if (-not $loaderName) {
+    # Heuristic: this repo is NeoForge-based.
+    $loaderName = "NeoForge"
+  }
+
+  $loader = $all | Where-Object {
+    ($_.name -eq $loaderName) -or ($_.slug -eq $loaderName) -or ($_.name -like "*$loaderName*")
+  } | Select-Object -First 1
+
+  if ($loader -and $loader.id) { $resolved += [int]$loader.id }
+
+  $resolved = $resolved | Select-Object -Unique
+  if ($resolved.Count -eq 0) {
+    throw "Could not auto-resolve CurseForge game version IDs. Set CF_GAME_VERSION_IDS (comma-separated numeric IDs) and re-run."
+  }
+
+  return $resolved
+}
+
+function Pick-MainArtifact([array]$artifacts) {
+  if ($artifacts.Count -eq 1) { return $artifacts[0] }
+
+  # Prefer non-sources/non-javadoc already filtered; now prefer the 'plain' jar.
+  # Heuristic: avoid "all" or "dev" jars if present.
+  $preferred = $artifacts | Where-Object { $_.Name -notmatch '(-all|-dev|-shadow)' } | Select-Object -First 1
+  if ($preferred) { return $preferred }
+  return $artifacts | Select-Object -First 1
+}
+
+function Upload-ToCurseForge([string]$version, [array]$artifacts) {
+  $cf = Get-CurseForgeConfig
+
+  if ($script:SkipCurseForge) {
+    Write-Host "CurseForge upload skipped (-SkipCurseForge)."
+    return
+  }
+
+  if (-not $cf.ProjectId -or -not $cf.Token) {
+    Write-Host "CurseForge upload not configured (missing CF_PROJECT_ID and/or CF_API_TOKEN). Skipping."
+    return
+  }
+
+  $projectId = $cf.ProjectId
+  if ($projectId -notmatch '^\d+$') {
+    throw "CurseForge project ID must be numeric. Got: '$projectId'"
+  }
+
+  # We want minecraft_version from gradle.properties (not mod_version).
+  $gp = Get-Content -Path "gradle.properties"
+  $mcLine = $gp | Where-Object { $_ -match '^minecraft_version=(.+)$' } | Select-Object -First 1
+  $mcVersion = if ($mcLine -and ($mcLine -match '^minecraft_version=(.+)$')) { $Matches[1].Trim() } else { $null }
+
+  if (-not $mcVersion) {
+    throw "Could not read minecraft_version from gradle.properties (required for CurseForge auto-resolution)."
+  }
+
+  $gameVersionIds = Resolve-CurseForgeGameVersionIds $cf $mcVersion
+
+  $releaseType = if ($cf.ReleaseType) { $cf.ReleaseType.Trim().ToLowerInvariant() } else { "release" }
+  if ($releaseType -notin @("release", "beta", "alpha")) {
+    throw "Invalid CF_RELEASE_TYPE '$releaseType'. Expected: release | beta | alpha"
+  }
+
+  $artifact = Pick-MainArtifact $artifacts
+  $filePath = $artifact.FullName
+  $fileName = $artifact.Name
+
+  $changelog = $null
+  if ($cf.ChangelogFile -and (Test-Path $cf.ChangelogFile)) {
+    $changelog = Get-Content -Path $cf.ChangelogFile -Raw
+  } elseif ($script:Note) {
+    $changelog = $script:Note
+  } else {
+    $changelog = "Release v$version"
+  }
+
+  # Build metadata per CurseForge Upload API.
+  $metadata = @{
+    changelog = $changelog
+    changelogType = "markdown"
+    displayName = $fileName
+    gameVersions = $gameVersionIds
+    releaseType = $releaseType
+  }
+
+  $metadataJson = $metadata | ConvertTo-Json -Compress
+
+  $uploadUri = "$($cf.BaseUrl)/api/projects/$projectId/upload-file"
+  Write-Host "Uploading to CurseForge project $projectId..."
+  Write-Host "  URL: $uploadUri"
+  Write-Host "  File: $fileName"
+  Write-Host "  GameVersion IDs: $($gameVersionIds -join ',')"
+  Write-Host "  ReleaseType: $releaseType"
+
+  Add-Type -AssemblyName System.Net.Http
+  $client = New-Object System.Net.Http.HttpClient
+  $client.DefaultRequestHeaders.Add("X-Api-Token", $cf.Token)
+
+  $multipart = New-Object System.Net.Http.MultipartFormDataContent
+  $metaContent = New-Object System.Net.Http.StringContent($metadataJson, [System.Text.Encoding]::UTF8, "application/json")
+  $multipart.Add($metaContent, "metadata")
+
+  $fileStream = [System.IO.File]::OpenRead($filePath)
+  try {
+    $fileContent = New-Object System.Net.Http.StreamContent($fileStream)
+    $fileContent.Headers.ContentType = New-Object System.Net.Http.Headers.MediaTypeHeaderValue("application/java-archive")
+    $multipart.Add($fileContent, "file", $fileName)
+
+    $resp = $client.PostAsync($uploadUri, $multipart).Result
+    $respBody = $resp.Content.ReadAsStringAsync().Result
+    if (-not $resp.IsSuccessStatusCode) {
+      throw "CurseForge upload failed: $([int]$resp.StatusCode) $($resp.ReasonPhrase)`n$respBody"
+    }
+
+    Write-Host "  [OK] Uploaded to CurseForge."
+    if ($respBody) {
+      Write-Host "  Response: $respBody"
+    }
+  } finally {
+    $fileStream.Close()
+    $multipart.Dispose()
+    $client.Dispose()
+  }
 }
 
 function Upload-ToGitHubRelease([string]$version, [array]$artifacts) {
@@ -546,6 +752,9 @@ foreach ($artifact in $artifacts) {
 
 # Upload to GitHub
 Upload-ToGitHubRelease $newVersion $artifacts
+
+# Upload to CurseForge (optional, env-driven)
+Upload-ToCurseForge $newVersion $artifacts
 
 Write-Host ""
 Write-Host "Publish complete!"
