@@ -21,6 +21,7 @@
           and (if detected) a loader name (default: "NeoForge").
     - CF_RELEASE_TYPE: release | beta | alpha (default: release)
     - CF_CHANGELOG_FILE: optional path to a changelog file (markdown/text)
+        - If not set, automatically looks for changelogs/{version}.md (e.g., changelogs/3.0.1.md)
     - CF_BASE_URL: optional base URL for the upload API (default: https://minecraft.curseforge.com)
 
 .PARAMETER Bump
@@ -419,12 +420,23 @@ function Upload-ToCurseForge([string]$version, [array]$artifacts) {
   $fileName = $artifact.Name
 
   $changelog = $null
+  # Priority: 1) Explicit CF_CHANGELOG_FILE, 2) Auto-detect changelogs/{version}.md, 3) Note parameter, 4) Default
   if ($cf.ChangelogFile -and (Test-Path $cf.ChangelogFile)) {
     $changelog = Get-Content -Path $cf.ChangelogFile -Raw
-  } elseif ($script:Note) {
-    $changelog = $script:Note
+    Write-Host "Using changelog from CF_CHANGELOG_FILE: $($cf.ChangelogFile)"
   } else {
-    $changelog = "Release v$version"
+    # Auto-detect changelog from changelogs/{version}.md
+    $autoChangelogPath = "changelogs/$version.md"
+    if (Test-Path $autoChangelogPath) {
+      $changelog = Get-Content -Path $autoChangelogPath -Raw
+      Write-Host "Using auto-detected changelog: $autoChangelogPath"
+    } elseif ($script:Note) {
+      $changelog = $script:Note
+      Write-Host "Using changelog from -Note parameter"
+    } else {
+      $changelog = "Release v$version"
+      Write-Host "Using default changelog message"
+    }
   }
 
   # Build metadata per CurseForge Upload API.
