@@ -3,14 +3,19 @@
   Build + publish Mekanism-Elements mod to GitHub, with SemVer bump, git commit + tag + push.
 
 .DESCRIPTION
-  - Requires a clean git working tree before starting.
+  - Requires a clean git working tree before starting (unless using -OnlyCurseForge or -SkipBuild).
   - Bumps version (default: patch, i.e. +0.0.1).
   - Updates:
       - gradle.properties (mod_version)
   - Commits, tags vX.Y.Z, pushes branch + tag to origin.
-  - Builds the mod using Gradle.
+  - Builds the mod using Gradle (unless -SkipBuild or -OnlyCurseForge is used).
   - Creates a GitHub release and uploads JAR artifacts.
   - Optionally uploads the main JAR to CurseForge if env vars are set.
+  
+  Special modes:
+    - -OnlyGit: Only perform git operations (commit, tag, push), skip build and uploads.
+    - -OnlyCurseForge: Only upload to CurseForge using existing JARs, skip git operations and build.
+    - -SkipBuild: Use existing JARs from build/libs without building.
 
   CurseForge env vars (optional):
     - CF_PROJECT_ID (or CURSEFORGE_PROJECT_ID / CF_PRODUCT_ID / CURSEFORGE_PRODUCT_ID)
@@ -19,6 +24,10 @@
         - Required by CurseForge Upload API. Includes Minecraft version ID and (optionally) mod loader ID.
         - If omitted, the script attempts to auto-resolve IDs via /api/game/versions using minecraft_version from gradle.properties,
           and (if detected) a loader name (default: "NeoForge").
+    - CF_ENVIRONMENT_IDS: comma-separated server/client environment IDs (e.g. "1,2")
+        - If omitted, the script attempts to auto-resolve Server (ID: 1) and Client (ID: 2) environment IDs.
+    - CF_JAVA_VERSION_ID: Java version ID (e.g., Java 21)
+        - If omitted, the script attempts to auto-resolve Java 21 version ID.
     - CF_RELEASE_TYPE: release | beta | alpha (default: release)
     - CF_CHANGELOG_FILE: optional path to a changelog file (markdown/text)
         - If not set, automatically looks for changelogs/{version}.md (e.g., changelogs/3.0.1.md)
@@ -53,6 +62,14 @@
 
 .EXAMPLE
   pwsh ./publish.ps1 -OnlyPublish -Version "2.4.0"
+
+.EXAMPLE
+  pwsh ./publish.ps1 -OnlyGit
+  # Only commit, tag, and push to git (skip build and uploads)
+
+.EXAMPLE
+  pwsh ./publish.ps1 -OnlyCurseForge
+  # Only upload to CurseForge using existing JARs (skip git operations and build)
 #>
 
 [CmdletBinding()]
@@ -73,7 +90,16 @@ param(
   [string]$GitHubRepo,
 
   # If set, skip CurseForge upload even if env vars are present.
-  [switch]$SkipCurseForge
+  [switch]$SkipCurseForge,
+
+  # If set, only perform git operations (commit, tag, push) and skip build/upload.
+  [switch]$OnlyGit,
+
+  # If set, only upload to CurseForge using existing JARs (skip git operations and build).
+  [switch]$OnlyCurseForge,
+
+  # If set, skip building and use existing JARs from build/libs.
+  [switch]$SkipBuild
 )
 
 $ErrorActionPreference = "Stop"
@@ -91,8 +117,10 @@ function Import-DotEnvIfPresent([string]$path) {
     $value = $trim.Substring($idx + 1).Trim()
     # Strip surrounding quotes if present
     if (($value.StartsWith('"') -and $value.EndsWith('"')) -or ($value.StartsWith("'") -and $value.EndsWith("'"))) {
-      $value = $value.Substring(1, $value.Length - 2)
+      $value = $value.Substring(1, $value.Length - 2).Trim()
     }
+    # Remove any embedded newlines, carriage returns, or tabs (in case token was split across lines)
+    $value = $value -replace "[\r\n\t]", ""
     if ($key) {
       # Don't overwrite variables already set in the environment
       $existing = $null
@@ -304,6 +332,18 @@ function Get-CurseForgeConfig() {
   $baseUrl = Get-EnvAny @("CF_BASE_URL")
   if (-not $baseUrl) { $baseUrl = "https://minecraft.curseforge.com" }
 
+  # Clean up token: trim whitespace and remove any control characters
+  if ($token) {
+    # Remove all whitespace (spaces, tabs, newlines) from start and end
+    $token = $token.Trim()
+    # Remove any embedded newlines, carriage returns, or tabs that might have been introduced
+    $token = $token -replace "[\r\n\t]", ""
+    # Remove any trailing/leading quotes if they exist
+    if (($token.StartsWith('"') -and $token.EndsWith('"')) -or ($token.StartsWith("'") -and $token.EndsWith("'"))) {
+      $token = $token.Substring(1, $token.Length - 2)
+    }
+  }
+
   return @{
     ProjectId = $projectId
     Token = $token
@@ -312,6 +352,8 @@ function Get-CurseForgeConfig() {
     GameVersionIdsRaw = (Get-EnvAny @("CF_GAME_VERSION_IDS"))
     ChangelogFile = (Get-EnvAny @("CF_CHANGELOG_FILE"))
     ModLoaderName = (Get-EnvAny @("CF_MOD_LOADER", "CF_MODLOADER", "CF_LOADER")) # optional; e.g. "NeoForge"
+    EnvironmentIdsRaw = (Get-EnvAny @("CF_ENVIRONMENT_IDS", "CF_ENV_IDS")) # optional; comma-separated server/client environment IDs
+    JavaVersionIdRaw = (Get-EnvAny @("CF_JAVA_VERSION_ID", "CF_JAVA_ID")) # optional; Java version ID (e.g., Java 21)
   }
 }
 
@@ -363,6 +405,73 @@ function Resolve-CurseForgeGameVersionIds([hashtable]$cf, [string]$minecraftVers
 
   if ($loader -and $loader.id) { $resolved += [int]$loader.id }
 
+  # Add server/client environment IDs if not explicitly provided
+  if (-not [string]::IsNullOrWhiteSpace($cf.EnvironmentIdsRaw)) {
+    $envIds = @()
+    foreach ($part in ($cf.EnvironmentIdsRaw -split "[,;\s]+" | Where-Object { $_ })) {
+      $t = $part.Trim()
+      if ($t -match '^\d+$') {
+        $envIds += [int]$t
+      }
+    }
+    $resolved += $envIds
+  } else {
+    # Auto-resolve server and client environment IDs
+    # Server-side environment type ID is 1, Client is 2 (from CurseForge API docs)
+    # Search for environment versions with these type IDs
+    $serverEnv = $all | Where-Object {
+      $_.gameVersionTypeID -eq 1 -and ($_.name -like "*server*" -or $_.slug -like "*server*" -or $_.id -eq 1)
+    } | Select-Object -First 1
+    $clientEnv = $all | Where-Object {
+      $_.gameVersionTypeID -eq 1 -and ($_.name -like "*client*" -or $_.slug -like "*client*" -or $_.id -eq 2)
+    } | Select-Object -First 1
+    
+    # If not found by name, try by ID (common: Server = 1, Client = 2)
+    if (-not $serverEnv) {
+      $serverEnv = $all | Where-Object { $_.id -eq 1 -and $_.gameVersionTypeID -eq 1 } | Select-Object -First 1
+    }
+    if (-not $clientEnv) {
+      $clientEnv = $all | Where-Object { $_.id -eq 2 -and $_.gameVersionTypeID -eq 1 } | Select-Object -First 1
+    }
+    
+    if ($serverEnv -and $serverEnv.id) { 
+      $resolved += [int]$serverEnv.id
+      Write-Host "Auto-resolved Server environment ID: $($serverEnv.id)"
+    }
+    if ($clientEnv -and $clientEnv.id) { 
+      $resolved += [int]$clientEnv.id
+      Write-Host "Auto-resolved Client environment ID: $($clientEnv.id)"
+    }
+  }
+
+  # Add Java version ID if not explicitly provided
+  if (-not [string]::IsNullOrWhiteSpace($cf.JavaVersionIdRaw)) {
+    $javaId = $cf.JavaVersionIdRaw.Trim()
+    if ($javaId -match '^\d+$') {
+      $resolved += [int]$javaId
+    }
+  } else {
+    # Auto-resolve Java 21
+    $java21 = $all | Where-Object {
+      ($_.name -like "*Java 21*" -or $_.name -like "*21*" -or $_.versionString -like "*21*") -and
+      ($_.gameVersionTypeID -eq 68541 -or $_.type -eq 68541) # Java version type ID
+    } | Select-Object -First 1
+    
+    if (-not $java21) {
+      # Try alternative search patterns
+      $java21 = $all | Where-Object {
+        ($_.name -eq "Java 21" -or $_.slug -eq "java-21" -or $_.versionString -eq "21")
+      } | Select-Object -First 1
+    }
+    
+    if ($java21 -and $java21.id) {
+      $resolved += [int]$java21.id
+      Write-Host "Auto-resolved Java 21 version ID: $($java21.id)"
+    } else {
+      Write-Warning "Could not auto-resolve Java 21 version ID. Set CF_JAVA_VERSION_ID to specify it manually."
+    }
+  }
+
   $resolved = $resolved | Select-Object -Unique
   if ($resolved.Count -eq 0) {
     throw "Could not auto-resolve CurseForge game version IDs. Set CF_GAME_VERSION_IDS (comma-separated numeric IDs) and re-run."
@@ -393,6 +502,37 @@ function Upload-ToCurseForge([string]$version, [array]$artifacts) {
     Write-Host "CurseForge upload not configured (missing CF_PROJECT_ID and/or CF_API_TOKEN). Skipping."
     return
   }
+
+  # Validate token format
+  if ([string]::IsNullOrWhiteSpace($cf.Token)) {
+    throw "CF_API_TOKEN is empty or whitespace-only. Please check your .env file or environment variable."
+  }
+  
+  # Check for problematic characters
+  if ($cf.Token -match '[\r\n]') {
+    $tokenPreview = if ($cf.Token.Length -gt 20) { $cf.Token.Substring(0, 20) + "..." } else { $cf.Token }
+    $tokenLength = $cf.Token.Length
+    throw "CF_API_TOKEN appears to contain newlines or carriage returns (length: $tokenLength, starts with: '$tokenPreview'). In your .env file, ensure the token is on a single line. If your token has special characters, wrap it in quotes: CF_API_TOKEN=`"your_token_here`""
+  }
+  
+  # Check token length (CurseForge tokens are typically 32+ characters)
+  if ($cf.Token.Length -lt 10) {
+    throw "CF_API_TOKEN appears too short (length: $($cf.Token.Length)). Please verify your token is correct."
+  }
+  
+  # Check if token looks like a bcrypt hash (common mistake - user might have copied wrong value)
+  if ($cf.Token -match '^\$2[aby]\$') {
+    throw "CF_API_TOKEN appears to be a bcrypt hash (starts with `$2a$, `$2b$, or `$2y$), not a CurseForge API token. Please get your actual API token from https://console.curseforge.com/ (API Tokens section)."
+  }
+  
+  # CurseForge API tokens typically don't start with special characters like $
+  if ($cf.Token.StartsWith('$')) {
+    Write-Warning "CF_API_TOKEN starts with '$' which is unusual for CurseForge tokens. Please verify you're using the correct token from https://console.curseforge.com/"
+  }
+  
+  # Debug: show token length and first few chars (for troubleshooting)
+  $tokenPreview = if ($cf.Token.Length -gt 10) { $cf.Token.Substring(0, 10) + "..." } else { "***" }
+  Write-Host "Using CurseForge API token (length: $($cf.Token.Length), starts with: $tokenPreview)"
 
   $projectId = $cf.ProjectId
   if ($projectId -notmatch '^\d+$') {
@@ -714,10 +854,74 @@ Require-Command git
 # Load .env if present
 Import-DotEnvIfPresent ".env"
 
+# Validate mutually exclusive flags
+if ($OnlyGit -and $OnlyCurseForge) {
+  throw "Cannot use both -OnlyGit and -OnlyCurseForge. Choose one."
+}
+if ($OnlyGit -and $OnlyPublish) {
+  throw "Cannot use both -OnlyGit and -OnlyPublish. Choose one."
+}
+if ($OnlyCurseForge -and $OnlyPublish) {
+  throw "Cannot use both -OnlyCurseForge and -OnlyPublish. Choose one."
+}
+
 # Read current version
 $currentVersion = Read-GradleVersion "gradle.properties"
 Write-Host "Current version: $currentVersion"
 
+# Handle -OnlyCurseForge: skip git operations, use existing JARs
+if ($OnlyCurseForge) {
+  Write-Host "OnlyCurseForge mode: skipping git operations and build, using existing JARs"
+  $newVersion = $currentVersion
+  
+  # Find existing build artifacts
+  $artifacts = Find-BuildArtifacts
+  Write-Host "Found $($artifacts.Count) artifact(s):"
+  foreach ($artifact in $artifacts) {
+    Write-Host "  - $($artifact.Name)"
+  }
+  
+  # Upload to CurseForge only
+  Upload-ToCurseForge $newVersion $artifacts
+  
+  Write-Host ""
+  Write-Host "CurseForge upload complete!"
+  exit 0
+}
+
+# Handle -OnlyGit: skip build and uploads, just do git operations
+if ($OnlyGit) {
+  Write-Host "OnlyGit mode: skipping build and uploads, only performing git operations"
+  
+  if (-not $OnlyPublish) {
+    Assert-GitClean
+  }
+  
+  if ($Version) {
+    Parse-SemVer $Version | Out-Null
+    $newVersion = $Version
+    Write-Host "Updating gradle.properties to version: $newVersion"
+    Update-GradleVersion "gradle.properties" $newVersion
+    
+    # Commit and push the version change
+    $tag = Git-CommitTagPush $newVersion
+    Write-Host "Created and pushed tag: $tag"
+  } else {
+    $newVersion = Bump-SemVer $currentVersion $Bump
+    Write-Host "Bumping version: $currentVersion -> $newVersion (bump: $Bump)"
+    Update-GradleVersion "gradle.properties" $newVersion
+    
+    # After version edit we must commit+tag
+    $tag = Git-CommitTagPush $newVersion
+    Write-Host "Created and pushed tag: $tag"
+  }
+  
+  Write-Host ""
+  Write-Host "Git operations complete!"
+  exit 0
+}
+
+# Normal flow or -OnlyPublish
 if (-not $OnlyPublish) {
   Assert-GitClean
 }
@@ -752,8 +956,12 @@ if ($OnlyPublish) {
   Write-Host "Created and pushed tag: $tag"
 }
 
-# Build the mod
-Build-Mod
+# Build the mod (unless SkipBuild is set)
+if (-not $SkipBuild) {
+  Build-Mod
+} else {
+  Write-Host "SkipBuild enabled. Using existing JARs from build/libs"
+}
 
 # Find build artifacts
 $artifacts = Find-BuildArtifacts
