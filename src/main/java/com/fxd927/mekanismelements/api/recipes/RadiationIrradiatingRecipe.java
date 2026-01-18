@@ -23,12 +23,11 @@ public abstract class RadiationIrradiatingRecipe extends MekanismRecipe<ItemChem
     private final ChemicalStack output;
 
     /**
-     * @param id        Recipe name.
      * @param itemInput Item input.
      * @param gasInput  Chemical input.
      * @param output    Output.
      */
-    public RadiationIrradiatingRecipe(ResourceLocation id, ItemStackIngredient itemInput, ChemicalStackIngredient gasInput, ChemicalStack output) {
+    public RadiationIrradiatingRecipe(ItemStackIngredient itemInput, ChemicalStackIngredient gasInput, ChemicalStack output) {
         super();
         this.itemInput = Objects.requireNonNull(itemInput, "Item input cannot be null.");
         this.gasInput = Objects.requireNonNull(gasInput, "Chemical input cannot be null.");

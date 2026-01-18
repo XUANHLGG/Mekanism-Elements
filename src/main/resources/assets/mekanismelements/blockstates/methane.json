@@ -1,0 +1,52 @@
+{
+  "variants": {
+    "level=0": {
+      "model": "mekanismelements:block/methane"
+    },
+    "level=1": {
+      "model": "mekanismelements:block/methane"
+    },
+    "level=2": {
+      "model": "mekanismelements:block/methane"
+    },
+    "level=3": {
+      "model": "mekanismelements:block/methane"
+    },
+    "level=4": {
+      "model": "mekanismelements:block/methane"
+    },
+    "level=5": {
+      "model": "mekanismelements:block/methane"
+    },
+    "level=6": {
+      "model": "mekanismelements:block/methane"
+    },
+    "level=7": {
+      "model": "mekanismelements:block/methane"
+    },
+    "level=8": {
+      "model": "mekanismelements:block/methane"
+    },
+    "level=9": {
+      "model": "mekanismelements:block/methane"
+    },
+    "level=10": {
+      "model": "mekanismelements:block/methane"
+    },
+    "level=11": {
+      "model": "mekanismelements:block/methane"
+    },
+    "level=12": {
+      "model": "mekanismelements:block/methane"
+    },
+    "level=13": {
+      "model": "mekanismelements:block/methane"
+    },
+    "level=14": {
+      "model": "mekanismelements:block/methane"
+    },
+    "level=15": {
+      "model": "mekanismelements:block/methane"
+    }
+  }
+}

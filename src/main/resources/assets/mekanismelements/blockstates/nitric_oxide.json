@@ -1,0 +1,52 @@
+{
+  "variants": {
+    "level=0": {
+      "model": "mekanismelements:block/nitric_oxide"
+    },
+    "level=1": {
+      "model": "mekanismelements:block/nitric_oxide"
+    },
+    "level=2": {
+      "model": "mekanismelements:block/nitric_oxide"
+    },
+    "level=3": {
+      "model": "mekanismelements:block/nitric_oxide"
+    },
+    "level=4": {
+      "model": "mekanismelements:block/nitric_oxide"
+    },
+    "level=5": {
+      "model": "mekanismelements:block/nitric_oxide"
+    },
+    "level=6": {
+      "model": "mekanismelements:block/nitric_oxide"
+    },
+    "level=7": {
+      "model": "mekanismelements:block/nitric_oxide"
+    },
+    "level=8": {
+      "model": "mekanismelements:block/nitric_oxide"
+    },
+    "level=9": {
+      "model": "mekanismelements:block/nitric_oxide"
+    },
+    "level=10": {
+      "model": "mekanismelements:block/nitric_oxide"
+    },
+    "level=11": {
+      "model": "mekanismelements:block/nitric_oxide"
+    },
+    "level=12": {
+      "model": "mekanismelements:block/nitric_oxide"
+    },
+    "level=13": {
+      "model": "mekanismelements:block/nitric_oxide"
+    },
+    "level=14": {
+      "model": "mekanismelements:block/nitric_oxide"
+    },
+    "level=15": {
+      "model": "mekanismelements:block/nitric_oxide"
+    }
+  }
+}

@@ -21,7 +21,7 @@
     "amount":1,
     "ingredient":
     {
-      "tag":"forge:dusts/steel"
+      "tag": "c:dusts/steel"
     }
   }
 }

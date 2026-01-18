@@ -13,9 +13,8 @@ import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.Level;
 
-public class ChemicalDemolitionIRecipe extends ChemicalDemolitionRecipe {
-    public ChemicalDemolitionIRecipe(ResourceLocation id, ItemStackIngredient itemInput, ChemicalStackIngredient fluidInput, ItemStack firstOutput, ItemStack secondOutput) {
-        super(id, itemInput, fluidInput, firstOutput, secondOutput);
+    public ChemicalDemolitionIRecipe(ItemStackIngredient itemInput, ChemicalStackIngredient fluidInput, ItemStack firstOutput, ItemStack secondOutput) {
+        super(itemInput, fluidInput, firstOutput, secondOutput);
     }
 
     @Override
@@ -40,8 +39,9 @@ public class ChemicalDemolitionIRecipe extends ChemicalDemolitionRecipe {
 
     @Override
     public boolean matches(ItemChemicalRecipeInput input, Level level) {
-        // TODO: Fix RecipeInput API access - fields may have changed
-        // For now, return true to allow compilation
-        return true;
+        if (isIncomplete()) {
+            return false;
+        }
+        return this.test(input.item(), input.chemical());
     }
 }

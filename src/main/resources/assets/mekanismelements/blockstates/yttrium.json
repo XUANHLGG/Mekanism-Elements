@@ -1,0 +1,52 @@
+{
+  "variants": {
+    "level=0": {
+      "model": "mekanismelements:block/yttrium"
+    },
+    "level=1": {
+      "model": "mekanismelements:block/yttrium"
+    },
+    "level=2": {
+      "model": "mekanismelements:block/yttrium"
+    },
+    "level=3": {
+      "model": "mekanismelements:block/yttrium"
+    },
+    "level=4": {
+      "model": "mekanismelements:block/yttrium"
+    },
+    "level=5": {
+      "model": "mekanismelements:block/yttrium"
+    },
+    "level=6": {
+      "model": "mekanismelements:block/yttrium"
+    },
+    "level=7": {
+      "model": "mekanismelements:block/yttrium"
+    },
+    "level=8": {
+      "model": "mekanismelements:block/yttrium"
+    },
+    "level=9": {
+      "model": "mekanismelements:block/yttrium"
+    },
+    "level=10": {
+      "model": "mekanismelements:block/yttrium"
+    },
+    "level=11": {
+      "model": "mekanismelements:block/yttrium"
+    },
+    "level=12": {
+      "model": "mekanismelements:block/yttrium"
+    },
+    "level=13": {
+      "model": "mekanismelements:block/yttrium"
+    },
+    "level=14": {
+      "model": "mekanismelements:block/yttrium"
+    },
+    "level=15": {
+      "model": "mekanismelements:block/yttrium"
+    }
+  }
+}

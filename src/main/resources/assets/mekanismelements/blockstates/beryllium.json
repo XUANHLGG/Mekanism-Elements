@@ -1,0 +1,52 @@
+{
+  "variants": {
+    "level=0": {
+      "model": "mekanismelements:block/beryllium"
+    },
+    "level=1": {
+      "model": "mekanismelements:block/beryllium"
+    },
+    "level=2": {
+      "model": "mekanismelements:block/beryllium"
+    },
+    "level=3": {
+      "model": "mekanismelements:block/beryllium"
+    },
+    "level=4": {
+      "model": "mekanismelements:block/beryllium"
+    },
+    "level=5": {
+      "model": "mekanismelements:block/beryllium"
+    },
+    "level=6": {
+      "model": "mekanismelements:block/beryllium"
+    },
+    "level=7": {
+      "model": "mekanismelements:block/beryllium"
+    },
+    "level=8": {
+      "model": "mekanismelements:block/beryllium"
+    },
+    "level=9": {
+      "model": "mekanismelements:block/beryllium"
+    },
+    "level=10": {
+      "model": "mekanismelements:block/beryllium"
+    },
+    "level=11": {
+      "model": "mekanismelements:block/beryllium"
+    },
+    "level=12": {
+      "model": "mekanismelements:block/beryllium"
+    },
+    "level=13": {
+      "model": "mekanismelements:block/beryllium"
+    },
+    "level=14": {
+      "model": "mekanismelements:block/beryllium"
+    },
+    "level=15": {
+      "model": "mekanismelements:block/beryllium"
+    }
+  }
+}

@@ -1,0 +1,52 @@
+{
+  "variants": {
+    "level=0": {
+      "model": "mekanismelements:block/ammonium_nitrate"
+    },
+    "level=1": {
+      "model": "mekanismelements:block/ammonium_nitrate"
+    },
+    "level=2": {
+      "model": "mekanismelements:block/ammonium_nitrate"
+    },
+    "level=3": {
+      "model": "mekanismelements:block/ammonium_nitrate"
+    },
+    "level=4": {
+      "model": "mekanismelements:block/ammonium_nitrate"
+    },
+    "level=5": {
+      "model": "mekanismelements:block/ammonium_nitrate"
+    },
+    "level=6": {
+      "model": "mekanismelements:block/ammonium_nitrate"
+    },
+    "level=7": {
+      "model": "mekanismelements:block/ammonium_nitrate"
+    },
+    "level=8": {
+      "model": "mekanismelements:block/ammonium_nitrate"
+    },
+    "level=9": {
+      "model": "mekanismelements:block/ammonium_nitrate"
+    },
+    "level=10": {
+      "model": "mekanismelements:block/ammonium_nitrate"
+    },
+    "level=11": {
+      "model": "mekanismelements:block/ammonium_nitrate"
+    },
+    "level=12": {
+      "model": "mekanismelements:block/ammonium_nitrate"
+    },
+    "level=13": {
+      "model": "mekanismelements:block/ammonium_nitrate"
+    },
+    "level=14": {
+      "model": "mekanismelements:block/ammonium_nitrate"
+    },
+    "level=15": {
+      "model": "mekanismelements:block/ammonium_nitrate"
+    }
+  }
+}

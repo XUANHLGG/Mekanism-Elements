@@ -14,9 +14,8 @@ import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.Level;
 
-public class RadiationIrradiatingIRecipe extends RadiationIrradiatingRecipe {
-    public RadiationIrradiatingIRecipe(ResourceLocation id, ItemStackIngredient itemInput, ChemicalStackIngredient gasInput, ChemicalStack output) {
-        super(id, itemInput, gasInput, output);
+    public RadiationIrradiatingIRecipe(ItemStackIngredient itemInput, ChemicalStackIngredient gasInput, ChemicalStack output) {
+        super(itemInput, gasInput, output);
     }
 
     @Override
@@ -41,8 +40,9 @@ public class RadiationIrradiatingIRecipe extends RadiationIrradiatingRecipe {
 
     @Override
     public boolean matches(ItemChemicalRecipeInput input, Level level) {
-        // TODO: Fix RecipeInput API access - fields may have changed
-        // For now, return true to allow compilation
-        return true;
+        if (isIncomplete()) {
+            return false;
+        }
+        return this.test(input.item(), input.chemical());
     }
 }

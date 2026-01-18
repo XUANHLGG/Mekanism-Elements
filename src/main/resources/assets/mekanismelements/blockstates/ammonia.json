@@ -1,0 +1,52 @@
+{
+  "variants": {
+    "level=0": {
+      "model": "mekanismelements:block/ammonia"
+    },
+    "level=1": {
+      "model": "mekanismelements:block/ammonia"
+    },
+    "level=2": {
+      "model": "mekanismelements:block/ammonia"
+    },
+    "level=3": {
+      "model": "mekanismelements:block/ammonia"
+    },
+    "level=4": {
+      "model": "mekanismelements:block/ammonia"
+    },
+    "level=5": {
+      "model": "mekanismelements:block/ammonia"
+    },
+    "level=6": {
+      "model": "mekanismelements:block/ammonia"
+    },
+    "level=7": {
+      "model": "mekanismelements:block/ammonia"
+    },
+    "level=8": {
+      "model": "mekanismelements:block/ammonia"
+    },
+    "level=9": {
+      "model": "mekanismelements:block/ammonia"
+    },
+    "level=10": {
+      "model": "mekanismelements:block/ammonia"
+    },
+    "level=11": {
+      "model": "mekanismelements:block/ammonia"
+    },
+    "level=12": {
+      "model": "mekanismelements:block/ammonia"
+    },
+    "level=13": {
+      "model": "mekanismelements:block/ammonia"
+    },
+    "level=14": {
+      "model": "mekanismelements:block/ammonia"
+    },
+    "level=15": {
+      "model": "mekanismelements:block/ammonia"
+    }
+  }
+}

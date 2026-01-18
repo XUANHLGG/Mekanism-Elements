@@ -11,10 +11,10 @@
   ],
   "key": {
     "S": {
-      "tag": "forge:glass"
+      "tag": "c:glass"
     },
     "G": {
-      "tag": "forge:dusts/calcium_oxide"
+      "tag": "c:dusts/calcium_oxide"
     }
   }
 }

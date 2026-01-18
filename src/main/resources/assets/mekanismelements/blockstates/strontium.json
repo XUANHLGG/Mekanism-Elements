@@ -1,0 +1,52 @@
+{
+  "variants": {
+    "level=0": {
+      "model": "mekanismelements:block/strontium"
+    },
+    "level=1": {
+      "model": "mekanismelements:block/strontium"
+    },
+    "level=2": {
+      "model": "mekanismelements:block/strontium"
+    },
+    "level=3": {
+      "model": "mekanismelements:block/strontium"
+    },
+    "level=4": {
+      "model": "mekanismelements:block/strontium"
+    },
+    "level=5": {
+      "model": "mekanismelements:block/strontium"
+    },
+    "level=6": {
+      "model": "mekanismelements:block/strontium"
+    },
+    "level=7": {
+      "model": "mekanismelements:block/strontium"
+    },
+    "level=8": {
+      "model": "mekanismelements:block/strontium"
+    },
+    "level=9": {
+      "model": "mekanismelements:block/strontium"
+    },
+    "level=10": {
+      "model": "mekanismelements:block/strontium"
+    },
+    "level=11": {
+      "model": "mekanismelements:block/strontium"
+    },
+    "level=12": {
+      "model": "mekanismelements:block/strontium"
+    },
+    "level=13": {
+      "model": "mekanismelements:block/strontium"
+    },
+    "level=14": {
+      "model": "mekanismelements:block/strontium"
+    },
+    "level=15": {
+      "model": "mekanismelements:block/strontium"
+    }
+  }
+}

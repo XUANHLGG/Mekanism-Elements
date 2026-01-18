@@ -1,0 +1,52 @@
+{
+  "variants": {
+    "level=0": {
+      "model": "mekanismelements:block/bromine"
+    },
+    "level=1": {
+      "model": "mekanismelements:block/bromine"
+    },
+    "level=2": {
+      "model": "mekanismelements:block/bromine"
+    },
+    "level=3": {
+      "model": "mekanismelements:block/bromine"
+    },
+    "level=4": {
+      "model": "mekanismelements:block/bromine"
+    },
+    "level=5": {
+      "model": "mekanismelements:block/bromine"
+    },
+    "level=6": {
+      "model": "mekanismelements:block/bromine"
+    },
+    "level=7": {
+      "model": "mekanismelements:block/bromine"
+    },
+    "level=8": {
+      "model": "mekanismelements:block/bromine"
+    },
+    "level=9": {
+      "model": "mekanismelements:block/bromine"
+    },
+    "level=10": {
+      "model": "mekanismelements:block/bromine"
+    },
+    "level=11": {
+      "model": "mekanismelements:block/bromine"
+    },
+    "level=12": {
+      "model": "mekanismelements:block/bromine"
+    },
+    "level=13": {
+      "model": "mekanismelements:block/bromine"
+    },
+    "level=14": {
+      "model": "mekanismelements:block/bromine"
+    },
+    "level=15": {
+      "model": "mekanismelements:block/bromine"
+    }
+  }
+}

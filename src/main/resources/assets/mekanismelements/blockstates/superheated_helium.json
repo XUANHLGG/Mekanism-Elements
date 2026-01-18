@@ -1,0 +1,52 @@
+{
+  "variants": {
+    "level=0": {
+      "model": "mekanismelements:block/superheated_helium"
+    },
+    "level=1": {
+      "model": "mekanismelements:block/superheated_helium"
+    },
+    "level=2": {
+      "model": "mekanismelements:block/superheated_helium"
+    },
+    "level=3": {
+      "model": "mekanismelements:block/superheated_helium"
+    },
+    "level=4": {
+      "model": "mekanismelements:block/superheated_helium"
+    },
+    "level=5": {
+      "model": "mekanismelements:block/superheated_helium"
+    },
+    "level=6": {
+      "model": "mekanismelements:block/superheated_helium"
+    },
+    "level=7": {
+      "model": "mekanismelements:block/superheated_helium"
+    },
+    "level=8": {
+      "model": "mekanismelements:block/superheated_helium"
+    },
+    "level=9": {
+      "model": "mekanismelements:block/superheated_helium"
+    },
+    "level=10": {
+      "model": "mekanismelements:block/superheated_helium"
+    },
+    "level=11": {
+      "model": "mekanismelements:block/superheated_helium"
+    },
+    "level=12": {
+      "model": "mekanismelements:block/superheated_helium"
+    },
+    "level=13": {
+      "model": "mekanismelements:block/superheated_helium"
+    },
+    "level=14": {
+      "model": "mekanismelements:block/superheated_helium"
+    },
+    "level=15": {
+      "model": "mekanismelements:block/superheated_helium"
+    }
+  }
+}

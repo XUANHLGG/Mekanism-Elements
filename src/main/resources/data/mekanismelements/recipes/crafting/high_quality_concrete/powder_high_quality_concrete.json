@@ -7,10 +7,10 @@
       "item": "minecraft:sand"
     },
     {
-      "tag": "forge:dusts/calcium_oxide"
+      "tag": "c:dusts/calcium_oxide"
     },
     {
-      "tag": "forge:dusts/lead"
+      "tag": "c:dusts/lead"
     }
   ],
   "result": {

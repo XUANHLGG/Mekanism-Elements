@@ -10,7 +10,7 @@
   ],
   "key": {
     "C": {
-      "tag": "forge:circuits/elite"
+      "tag": "c:circuits/elite"
     },
     "S": {
       "item": "minecraft:iron_bars"
@@ -23,3 +23,4 @@
     }
   }
 }
+

@@ -3,12 +3,12 @@
   "itemInput": {
     "amount": 1,
     "ingredient": {
-      "tag": "forge:dusts/fluorite"
+      "tag": "c:dusts/fluorite"
     }
   },
   "fluidInput": {
     "amount": 10,
-    "tag": "forge:heavy_water"
+    "tag": "c:heavy_water"
   },
   "chemicalInput": {
     "amount": 100,

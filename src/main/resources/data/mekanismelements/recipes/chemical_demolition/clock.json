@@ -1,24 +1,19 @@
 {
-  "type":"mekanismscience:chemical_demolition",
-  "chemicalInput":
-  {
-    "amount":1,
-    "chemical":"mekanismelements:aqua_regia"
+  "type": "mekanismelements:chemical_demolition",
+  "chemicalInput": {
+    "amount": 1,
+    "chemical": "mekanismelements:aqua_regia"
   },
-  "itemInput":
-  {
-    "ingredient":
-    {
-      "item":"minecraft:clock"
+  "itemInput": {
+    "ingredient": {
+      "item": "minecraft:clock"
     }
   },
-  "mainOutput":
-  {
+  "mainOutput": {
     "count": 4,
-    "item":"minecraft:gold_ingot"
+    "item": "minecraft:gold_ingot"
   },
-  "secondaryOutput":
-  {
-    "item":"minecraft:redstone"
+  "secondaryOutput": {
+    "item": "minecraft:redstone"
   }
 }

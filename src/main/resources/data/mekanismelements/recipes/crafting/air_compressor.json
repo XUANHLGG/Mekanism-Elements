@@ -13,7 +13,7 @@
       "item": "mekanism:basic_chemical_tank"
     },
     "C": {
-      "tag": "forge:circuits/advanced"
+      "tag": "c:circuits/advanced"
     },
     "S": {
       "item": "mekanism:hdpe_sheet"
@@ -26,3 +26,4 @@
     }
   }
 }
+

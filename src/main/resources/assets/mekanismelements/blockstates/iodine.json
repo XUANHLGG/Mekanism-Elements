@@ -1,0 +1,52 @@
+{
+  "variants": {
+    "level=0": {
+      "model": "mekanismelements:block/iodine"
+    },
+    "level=1": {
+      "model": "mekanismelements:block/iodine"
+    },
+    "level=2": {
+      "model": "mekanismelements:block/iodine"
+    },
+    "level=3": {
+      "model": "mekanismelements:block/iodine"
+    },
+    "level=4": {
+      "model": "mekanismelements:block/iodine"
+    },
+    "level=5": {
+      "model": "mekanismelements:block/iodine"
+    },
+    "level=6": {
+      "model": "mekanismelements:block/iodine"
+    },
+    "level=7": {
+      "model": "mekanismelements:block/iodine"
+    },
+    "level=8": {
+      "model": "mekanismelements:block/iodine"
+    },
+    "level=9": {
+      "model": "mekanismelements:block/iodine"
+    },
+    "level=10": {
+      "model": "mekanismelements:block/iodine"
+    },
+    "level=11": {
+      "model": "mekanismelements:block/iodine"
+    },
+    "level=12": {
+      "model": "mekanismelements:block/iodine"
+    },
+    "level=13": {
+      "model": "mekanismelements:block/iodine"
+    },
+    "level=14": {
+      "model": "mekanismelements:block/iodine"
+    },
+    "level=15": {
+      "model": "mekanismelements:block/iodine"
+    }
+  }
+}

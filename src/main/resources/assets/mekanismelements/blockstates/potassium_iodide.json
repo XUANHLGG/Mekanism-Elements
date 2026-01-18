@@ -1,0 +1,52 @@
+{
+  "variants": {
+    "level=0": {
+      "model": "mekanismelements:block/potassium_iodide"
+    },
+    "level=1": {
+      "model": "mekanismelements:block/potassium_iodide"
+    },
+    "level=2": {
+      "model": "mekanismelements:block/potassium_iodide"
+    },
+    "level=3": {
+      "model": "mekanismelements:block/potassium_iodide"
+    },
+    "level=4": {
+      "model": "mekanismelements:block/potassium_iodide"
+    },
+    "level=5": {
+      "model": "mekanismelements:block/potassium_iodide"
+    },
+    "level=6": {
+      "model": "mekanismelements:block/potassium_iodide"
+    },
+    "level=7": {
+      "model": "mekanismelements:block/potassium_iodide"
+    },
+    "level=8": {
+      "model": "mekanismelements:block/potassium_iodide"
+    },
+    "level=9": {
+      "model": "mekanismelements:block/potassium_iodide"
+    },
+    "level=10": {
+      "model": "mekanismelements:block/potassium_iodide"
+    },
+    "level=11": {
+      "model": "mekanismelements:block/potassium_iodide"
+    },
+    "level=12": {
+      "model": "mekanismelements:block/potassium_iodide"
+    },
+    "level=13": {
+      "model": "mekanismelements:block/potassium_iodide"
+    },
+    "level=14": {
+      "model": "mekanismelements:block/potassium_iodide"
+    },
+    "level=15": {
+      "model": "mekanismelements:block/potassium_iodide"
+    }
+  }
+}

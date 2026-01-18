@@ -4,11 +4,11 @@
   {
     "A":
     {
-      "tag":"forge:ingots/osmium"
+      "tag": "c:ingots/osmium"
     },
     "_":
     {
-      "tag":"forge:circuits/elite"
+      "tag": "c:circuits/elite"
     },
     "E":
     {

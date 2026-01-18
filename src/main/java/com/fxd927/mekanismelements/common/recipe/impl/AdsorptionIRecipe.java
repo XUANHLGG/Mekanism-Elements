@@ -14,9 +14,8 @@ import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.Level;
 
-public class AdsorptionIRecipe extends AdsorptionRecipe {
-    public AdsorptionIRecipe(ResourceLocation id, ItemStackIngredient itemInput, FluidStackIngredient fluidInput, ChemicalStack output) {
-        super(id, itemInput, fluidInput, output);
+    public AdsorptionIRecipe(ItemStackIngredient itemInput, FluidStackIngredient fluidInput, ChemicalStack output) {
+        super(itemInput, fluidInput, output);
     }
 
     @Override
@@ -41,8 +40,9 @@ public class AdsorptionIRecipe extends AdsorptionRecipe {
 
     @Override
     public boolean matches(FluidRecipeInput input, Level level) {
-        // TODO: Fix RecipeInput API access - fields may have changed
-        // For now, return true to allow compilation
-        return true;
+        if (isIncomplete()) {
+            return false;
+        }
+        return this.test(input.item(), input.fluid());
     }
 }

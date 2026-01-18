@@ -26,12 +26,11 @@ public abstract class ChemicalDemolitionRecipe extends MekanismRecipe<ItemChemic
     private final ItemStack secondOutput;
 
     /**
-     * @param id        Recipe name.
      * @param itemInput Item input.
      * @param gasInput  Chemical input.
      * @param firstOutput    Output.
      */
-    public ChemicalDemolitionRecipe(ResourceLocation id, ItemStackIngredient itemInput, ChemicalStackIngredient gasInput, ItemStack firstOutput, ItemStack secondOutput) {
+    public ChemicalDemolitionRecipe(ItemStackIngredient itemInput, ChemicalStackIngredient gasInput, ItemStack firstOutput, ItemStack secondOutput) {
         super();
         this.itemInput = Objects.requireNonNull(itemInput, "Item input cannot be null.");
         this.gasInput = Objects.requireNonNull(gasInput, "Chemical input cannot be null.");

@@ -24,12 +24,11 @@ public abstract class AdsorptionRecipe extends MekanismRecipe<FluidRecipeInput> 
     private final ChemicalStack output;
 
     /**
-     * @param id        Recipe name.
      * @param itemInput Item input.
      * @param fluidInput  Chemical input.
      * @param output    Output.
      */
-    public AdsorptionRecipe(ResourceLocation id, ItemStackIngredient itemInput, FluidStackIngredient fluidInput, ChemicalStack output) {
+    public AdsorptionRecipe(ItemStackIngredient itemInput, FluidStackIngredient fluidInput, ChemicalStack output) {
         super();
         this.itemInput = Objects.requireNonNull(itemInput, "Item input cannot be null.");
         this.fluidInput = Objects.requireNonNull(fluidInput, "Fluid input cannot be null.");
