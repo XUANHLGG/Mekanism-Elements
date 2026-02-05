@@ -9,5 +9,6 @@
   },
   "output": {
     "id": "mekanismelements:syringe_anesthetic"
-  }
+  },
+  "per_tick_usage": false
 }

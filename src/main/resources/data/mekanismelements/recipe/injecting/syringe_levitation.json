@@ -9,5 +9,6 @@
   },
   "output": {
     "id": "mekanismelements:syringe_levitation"
-  }
+  },
+  "per_tick_usage": false
 }

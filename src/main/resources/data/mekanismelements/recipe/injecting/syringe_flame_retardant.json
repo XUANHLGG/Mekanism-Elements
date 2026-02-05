@@ -9,5 +9,6 @@
   },
   "output": {
     "id": "mekanismelements:syringe_flame_retardant"
-  }
+  },
+  "per_tick_usage": false
 }

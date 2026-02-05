@@ -10,5 +10,6 @@
   "output": {
     "count": 8,
     "id": "minecraft:tnt"
-  }
+  },
+  "per_tick_usage": false
 }

@@ -1,18 +1,15 @@
 {
-  "type":"mekanism:chemical_infusing",
-  "leftInput":
-  {
-    "amount":4,
-    "id":"mekanismelements:ammonia"
+  "type": "mekanism:chemical_infusing",
+  "output": {
+    "amount": 4,
+    "id": "mekanismelements:nitric_oxide"
   },
-  "output":
-  {
-    "amount":4,
-    "id":"mekanismelements:nitric_oxide"
+  "left_input": {
+    "amount": 4,
+    "chemical": "mekanismelements:ammonia"
   },
-  "rightInput":
-  {
-    "amount":5,
-    "id":"mekanism:oxygen"
+  "right_input": {
+    "amount": 5,
+    "chemical": "mekanism:oxygen"
   }
 }

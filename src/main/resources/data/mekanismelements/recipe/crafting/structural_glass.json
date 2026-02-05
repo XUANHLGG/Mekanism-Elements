@@ -11,11 +11,10 @@
   ],
   "key": {
     "S": {
-      "tag": "c:glass"
+      "tag": "c:glass_blocks"
     },
     "G": {
       "tag": "c:dusts/calcium_oxide"
     }
   }
 }
-
