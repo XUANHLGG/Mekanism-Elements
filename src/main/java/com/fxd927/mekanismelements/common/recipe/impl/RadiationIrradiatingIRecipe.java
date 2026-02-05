@@ -14,6 +14,8 @@ import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.Level;
 
+public class RadiationIrradiatingIRecipe extends RadiationIrradiatingRecipe {
+
     public RadiationIrradiatingIRecipe(ItemStackIngredient itemInput, ChemicalStackIngredient gasInput, ChemicalStack output) {
         super(itemInput, gasInput, output);
     }
@@ -43,6 +45,6 @@ import net.minecraft.world.level.Level;
         if (isIncomplete()) {
             return false;
         }
-        return this.test(input.item(), input.chemical());
+        return this.test(input.getItem(0), input.getChemical(0));
     }
 }

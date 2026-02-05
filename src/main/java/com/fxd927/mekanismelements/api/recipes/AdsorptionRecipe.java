@@ -39,6 +39,16 @@ public abstract class AdsorptionRecipe extends MekanismRecipe<FluidRecipeInput> 
         this.output = output.copy();
     }
 
+    private ResourceLocation id;
+
+    public void setId(ResourceLocation id) {
+        this.id = id;
+    }
+
+    public ResourceLocation getId() {
+        return id;
+    }
+
     /**
      * Gets the input item ingredient.
      */

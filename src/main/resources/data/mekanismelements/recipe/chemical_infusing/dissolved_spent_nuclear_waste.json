@@ -1,0 +1,18 @@
+{
+  "type":"mekanism:chemical_infusing",
+  "leftInput":
+  {
+    "amount":1,
+    "id":"mekanismelements:nitric_acid"
+  },
+  "output":
+  {
+    "amount":1,
+    "id":"mekanismelements:dissolved_spent_nuclear_waste"
+  },
+  "rightInput":
+  {
+    "amount":1,
+    "id":"mekanism:spent_nuclear_waste"
+  }
+}

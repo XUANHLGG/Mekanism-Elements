@@ -14,8 +14,11 @@ import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.Level;
 
+public class AdsorptionIRecipe extends AdsorptionRecipe {
+
     public AdsorptionIRecipe(ItemStackIngredient itemInput, FluidStackIngredient fluidInput, ChemicalStack output) {
         super(itemInput, fluidInput, output);
+        com.fxd927.mekanismelements.common.MekanismElements.logger.info("DEBUG: AdsorptionIRecipe CREATED: {}", output);
     }
 
     @Override
@@ -43,6 +46,6 @@ import net.minecraft.world.level.Level;
         if (isIncomplete()) {
             return false;
         }
-        return this.test(input.item(), input.fluid());
+        return this.test(input.getItem(0), input.getFluid(0));
     }
 }

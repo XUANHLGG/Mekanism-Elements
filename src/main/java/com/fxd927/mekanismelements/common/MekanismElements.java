@@ -26,6 +26,7 @@ import static mekanism.api.MekanismAPI.logger;
 public class MekanismElements
 {
     public static final String MODID = "mekanismelements";
+    public static final org.slf4j.Logger logger = com.mojang.logging.LogUtils.getLogger();
 
     public final Version versionNumber;
     private MSReloadListener recipeCacheManager;

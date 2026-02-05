@@ -92,6 +92,7 @@ public class MSRecipeType<RECIPE extends MekanismRecipe<?>, INPUT_CACHE extends 
                 world = ServerLifecycleHooks.getCurrentServer().overworld();
             }
             if (world == null) {
+                MekanismElements.logger.info("MSRecipeType.getRecipes: World is null, returning empty list.");
                 return Collections.emptyList();
             }
         }
@@ -99,10 +100,31 @@ public class MSRecipeType<RECIPE extends MekanismRecipe<?>, INPUT_CACHE extends 
             RecipeManager recipeManager = world.getRecipeManager();
             @SuppressWarnings({"unchecked", "rawtypes"})
             List<RecipeHolder<RECIPE>> recipeHolders = (List) recipeManager.getAllRecipesFor((RecipeType) this);
+            MekanismElements.logger.info("MSRecipeType.getRecipes: Found {} recipes for type {}", recipeHolders.size(), registryName);
+
+            // DEBUG: List all recipes in manager to see if ours are even there
+            List<RecipeHolder<?>> allRecipes = (List) recipeManager.getRecipes();
+            MekanismElements.logger.info("DEBUG: Total recipes in manager: {}", allRecipes.size());
+            for (RecipeHolder<?> h : allRecipes) {
+                if (h.id().getNamespace().equals(MekanismElements.MODID)) {
+                    MekanismElements.logger.info("DEBUG: Found MekanismElements recipe: {} (Type: {})", h.id(), h.value().getType());
+                }
+            }
             cachedRecipes = recipeHolders.stream()
-                    .map(RecipeHolder::value)
-                    .filter(recipe -> !recipe.isIncomplete())
+                    .map(holder -> {
+                        RECIPE recipe = holder.value();
+                        if (recipe instanceof AdsorptionRecipe r) {
+                            r.setId(holder.id());
+                        } else if (recipe instanceof RadiationIrradiatingRecipe r) {
+                            r.setId(holder.id());
+                        } else if (recipe instanceof ChemicalDemolitionRecipe r) {
+                            r.setId(holder.id());
+                        }
+                        return recipe;
+                    })
+                    //.filter(recipe -> !recipe.isIncomplete()) // DEBUG: Disable filter
                     .toList();
+            MekanismElements.logger.info("MSRecipeType.getRecipes: Cached {} recipes", cachedRecipes.size());
         }
         return cachedRecipes;
     }

@@ -1,0 +1,13 @@
+{
+  "type":"mekanism:evaporating",
+  "input":
+  {
+    "amount":1,
+    "id":"mekanismelements:seawater"
+  },
+  "output":
+  {
+    "amount":1,
+    "id":"mekanismelements:potassium_chloride"
+  }
+}

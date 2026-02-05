@@ -1,0 +1,13 @@
+{
+  "type": "mekanism:injecting",
+  "chemical_input": {
+    "amount": 1,
+    "tag": "mekanism:water_vapor"
+  },
+  "item_input": {
+    "item": "mekanismelements:powder_high_quality_concrete_light_gray"
+  },
+  "output": {
+    "id": "mekanismelements:clump_high_quality_concrete_light_gray"
+  }
+}

@@ -59,8 +59,12 @@ public class MSJEI implements IModPlugin {
 
     @Override
     public void registerRecipes(@NotNull IRecipeRegistration registry) {
+        System.out.println("DEBUG: MSJEI.registerRecipes ENTERED");
+        MekanismElements.logger.info("DEBUG: MSJEI.registerRecipes ENTERED (Logger)");
+        MekanismElements.logger.info("DEBUG: MSJEI Registering Adsorption: TypeInstance={}", MSRecipeType.ADSORPTION.get());
         MSRecipeRegistryHelper.register(registry, ADSORPTION_SEPARATOR, MSRecipeType.ADSORPTION);
         //MSRecipeRegistryHelper.register(registry, CHEMICAL_DEMOLITION_MACHINE, MSRecipeType.CHEMICAL_DEMOLITION);
+        MekanismElements.logger.info("DEBUG: MSJEI Registering Radiation: TypeInstance={}", MSRecipeType.RADIATION_IRRADIATING.get());
         MSRecipeRegistryHelper.register(registry, RADIATION_IRRADIATOR, MSRecipeType.RADIATION_IRRADIATING);
     }
 }

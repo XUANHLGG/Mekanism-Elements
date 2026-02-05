@@ -13,6 +13,8 @@ import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.Level;
 
+public class ChemicalDemolitionIRecipe extends ChemicalDemolitionRecipe {
+
     public ChemicalDemolitionIRecipe(ItemStackIngredient itemInput, ChemicalStackIngredient fluidInput, ItemStack firstOutput, ItemStack secondOutput) {
         super(itemInput, fluidInput, firstOutput, secondOutput);
     }
@@ -42,6 +44,6 @@ import net.minecraft.world.level.Level;
         if (isIncomplete()) {
             return false;
         }
-        return this.test(input.item(), input.chemical());
+        return this.test(input.getItem(0), input.getChemical(0));
     }
 }

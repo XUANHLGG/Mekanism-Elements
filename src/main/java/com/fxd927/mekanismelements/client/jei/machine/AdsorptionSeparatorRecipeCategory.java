@@ -82,9 +82,7 @@ public class AdsorptionSeparatorRecipeCategory extends BaseRecipeCategory<Adsorp
 
     @Override
     public net.minecraft.resources.ResourceLocation getRegistryName(AdsorptionRecipe recipe) {
-        // Recipes are wrapped in RecipeHolder, need to get ID from holder
-        // For now, return a placeholder - this will need to be fixed when recipes are properly registered
-        return getRecipeType().getUid();
+        return recipe.getId();
     }
 
     @SuppressWarnings("unchecked")

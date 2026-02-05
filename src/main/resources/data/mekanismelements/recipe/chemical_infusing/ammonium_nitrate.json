@@ -1,0 +1,18 @@
+{
+  "type":"mekanism:chemical_infusing",
+  "leftInput":
+  {
+    "amount":1,
+    "id":"mekanismelements:ammonia"
+  },
+  "output":
+  {
+    "amount":1,
+    "id":"mekanismelements:ammonium_nitrate"
+  },
+  "rightInput":
+  {
+    "amount":1,
+    "id":"mekanismelements:nitric_acid"
+  }
+}

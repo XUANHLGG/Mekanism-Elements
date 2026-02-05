@@ -45,6 +45,16 @@ public abstract class ChemicalDemolitionRecipe extends MekanismRecipe<ItemChemic
         this.secondOutput = secondOutput.copy();
     }
 
+    private ResourceLocation id;
+
+    public void setId(ResourceLocation id) {
+        this.id = id;
+    }
+
+    public ResourceLocation getId() {
+        return id;
+    }
+
     /**
      * Gets the input item ingredient.
      */
