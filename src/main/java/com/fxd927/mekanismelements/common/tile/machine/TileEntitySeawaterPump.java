@@ -79,11 +79,18 @@ public class TileEntitySeawaterPump extends TileEntityConfigurableMachine implem
                 .setCanEject(type -> canFunction());
     }
 
+    @Override
+    protected void presetVariables() {
+        super.presetVariables();
+        fluidTank = BasicFluidTank.output(10_000, this::markForSave);
+        energyContainer = MachineEnergyContainer.input(this, this::markForSave);
+    }
+
     @Nonnull
     @Override
     public IFluidTankHolder getInitialFluidTanks(IContentsListener listener) {
         FluidTankHelper builder = FluidTankHelper.forSide(this::getDirection);
-        builder.addTank(fluidTank = BasicFluidTank.output(10_000, listener), RelativeSide.TOP);
+        builder.addTank(fluidTank, RelativeSide.TOP);
         return builder.build();
     }
 
@@ -91,7 +98,7 @@ public class TileEntitySeawaterPump extends TileEntityConfigurableMachine implem
     @Override
     protected IEnergyContainerHolder getInitialEnergyContainers(IContentsListener listener) {
         EnergyContainerHelper builder = EnergyContainerHelper.forSide(this::getDirection);
-        builder.addContainer(energyContainer = MachineEnergyContainer.input(this, listener), RelativeSide.BACK);
+        builder.addContainer(energyContainer, RelativeSide.BACK);
         return builder.build();
     }
 

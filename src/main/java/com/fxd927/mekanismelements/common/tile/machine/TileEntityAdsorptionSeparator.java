@@ -73,24 +73,24 @@ public class TileEntityAdsorptionSeparator extends MSTileEntityProgressMachine<A
 
         @WrappingComputerMethod(wrapper = SpecialComputerMethodWrapper.ComputerChemicalTankWrapper.class, methodNames = {"getChemicalInput", "getChemicalInputCapacity", "getChemicalInputNeeded",
                 "getChemicalInputFilledPercentage"}, docPlaceholder = "chemical input tank")
-        public BasicFluidTank inputTank = null;
-        public IChemicalTank chemicalOutputTank = null;
-        public IChemicalTank infusionOutputTank = null;
-        public IChemicalTank pigmentOutputTank = null;
-        public IChemicalTank slurryOutputTank = null;
+        public BasicFluidTank inputTank;
+        public IChemicalTank chemicalOutputTank;
+        public IChemicalTank infusionOutputTank;
+        public IChemicalTank pigmentOutputTank;
+        public IChemicalTank slurryOutputTank;
         public double injectUsage = 1;
 
         private final IOutputHandler<ChemicalStack> outputHandler;
         private final IInputHandler<@NotNull ItemStack> itemInputHandler;
         private final IInputHandler<@NotNull FluidStack> fluidInputHandler;
 
-        private MachineEnergyContainer<com.fxd927.mekanismelements.common.tile.machine.TileEntityAdsorptionSeparator> energyContainer = null;
+        private MachineEnergyContainer<com.fxd927.mekanismelements.common.tile.machine.TileEntityAdsorptionSeparator> energyContainer;
         @WrappingComputerMethod(wrapper = SpecialComputerMethodWrapper.ComputerIInventorySlotWrapper.class, methodNames = "getInputItem", docPlaceholder = "input slot")
-        MSInputInventorySlot inputSlot = null;
+        MSInputInventorySlot inputSlot;
         @WrappingComputerMethod(wrapper = SpecialComputerMethodWrapper.ComputerIInventorySlotWrapper.class, methodNames = "getOutputItem", docPlaceholder = "output slot")
-        ChemicalInventorySlot outputSlot = null;
+        ChemicalInventorySlot outputSlot;
         @WrappingComputerMethod(wrapper = SpecialComputerMethodWrapper.ComputerIInventorySlotWrapper.class, methodNames = "getEnergyItem", docPlaceholder = "energy slot")
-        EnergyInventorySlot energySlot = null;
+        EnergyInventorySlot energySlot;
 
         public TileEntityAdsorptionSeparator(BlockPos pos, BlockState state) {
             super(MSBlocks.ADSORPTION_SEPARATOR, pos, state, TRACKED_ERROR_TYPES, BASE_TICKS_REQUIRED);

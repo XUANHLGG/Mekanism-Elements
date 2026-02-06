@@ -116,14 +116,15 @@ public class TileEntityRadiationIrradiator extends MSTileEntityProgressMachine<R
         infusionOutputTank = BasicChemicalTank.output(MAX_CHEMICAL, saveOnlyListener);
         pigmentOutputTank = BasicChemicalTank.output(MAX_CHEMICAL, saveOnlyListener);
         slurryOutputTank = BasicChemicalTank.output(MAX_CHEMICAL, saveOnlyListener);
+        injectTank = BasicChemicalTank.createModern(MAX_CHEMICAL, ChemicalTankHelper.radioactiveInputTankPredicate(() -> chemicalOutputTank),
+                ConstantPredicates.alwaysTrueBi(), this::containsRecipeB, ChemicalAttributeValidator.ALWAYS_ALLOW, saveOnlyListener);
     }
 
     @NotNull
     @Override
     public IChemicalTankHolder getInitialGasTanks(IContentsListener listener, IContentsListener recipeCacheListener) {
         ChemicalTankHelper builder = ChemicalTankHelper.forSideWithConfig(this);
-        builder.addTank(injectTank = BasicChemicalTank.createModern(MAX_CHEMICAL, ChemicalTankHelper.radioactiveInputTankPredicate(() -> chemicalOutputTank),
-                ConstantPredicates.alwaysTrueBi(), this::containsRecipeB, ChemicalAttributeValidator.ALWAYS_ALLOW, recipeCacheListener));
+        builder.addTank(injectTank);
         builder.addTank(chemicalOutputTank);
         return builder.build();
     }

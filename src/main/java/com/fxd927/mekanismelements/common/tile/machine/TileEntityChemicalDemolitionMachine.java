@@ -111,12 +111,19 @@ public class TileEntityChemicalDemolitionMachine extends MSTileEntityProgressMac
         secondOutputHandler = OutputHelper.getOutputHandler(secondOutputSlot, NOT_ENOUGH_SPACE_SECOND_OUTPUT_ERROR);
     }
 
+    @Override
+    protected void presetVariables() {
+        super.presetVariables();
+        injectTank = BasicChemicalTank.createModern(MAX_CHEMICAL, allowExtractingChemical() ? ConstantPredicates.alwaysTrueBi() : ConstantPredicates.notExternal(),
+              (chemical, automationType) -> containsRecipeBA(inputSlot.getStack(), chemical), this::containsRecipeB, this::markForSave);
+        energyContainer = MachineEnergyContainer.input(this, this::markForSave);
+    }
+
     @NotNull
     @Override
     public IChemicalTankHolder getInitialGasTanks(IContentsListener listener, IContentsListener recipeCacheListener) {
         ChemicalTankHelper builder = ChemicalTankHelper.forSideWithConfig(this);
-        builder.addTank(injectTank = BasicChemicalTank.createModern(MAX_CHEMICAL, allowExtractingChemical() ? ConstantPredicates.alwaysTrueBi() : ConstantPredicates.notExternal(),
-              (chemical, automationType) -> containsRecipeBA(inputSlot.getStack(), chemical), this::containsRecipeB, recipeCacheListener));
+        builder.addTank(injectTank);
         return builder.build();
     }
 
@@ -154,7 +161,7 @@ public class TileEntityChemicalDemolitionMachine extends MSTileEntityProgressMac
     @Override
     protected IEnergyContainerHolder getInitialEnergyContainers(IContentsListener listener, IContentsListener recipeCacheListener) {
         EnergyContainerHelper builder = EnergyContainerHelper.forSideWithConfig(this);
-        builder.addContainer(energyContainer = MachineEnergyContainer.input(this, listener));
+        builder.addContainer(energyContainer);
         return builder.build();
     }
 

@@ -92,13 +92,22 @@ public class TileEntityAirCompressor extends TileEntityConfigurableMachine {
                 .setCanEject(type -> canFunction());
         ejectorComponent.setOutputData(getConfig(),TransmissionType.CHEMICAL)
                 .setCanEject(type -> canFunction());
+        ejectorComponent.setOutputData(getConfig(),TransmissionType.CHEMICAL)
+                .setCanEject(type -> canFunction());
+    }
+
+    @Override
+    protected void presetVariables() {
+        super.presetVariables();
+        chemicalTank = BasicChemicalTank.output(10_000, this::markForSave);
+        energyContainer = MachineEnergyContainer.input(this, this::markForSave);
     }
 
     @Nonnull
     @Override
     public IChemicalTankHolder getInitialChemicalTanks(IContentsListener listener) {
         ChemicalTankHelper builder = ChemicalTankHelper.forSide(this::getDirection);
-        builder.addTank(chemicalTank = BasicChemicalTank.output(10_000, listener));
+        builder.addTank(chemicalTank);
         return builder.build();
     }
 
@@ -106,7 +115,7 @@ public class TileEntityAirCompressor extends TileEntityConfigurableMachine {
     @Override
     protected IEnergyContainerHolder getInitialEnergyContainers(IContentsListener listener) {
         EnergyContainerHelper builder = EnergyContainerHelper.forSide(this::getDirection);
-        builder.addContainer(energyContainer = MachineEnergyContainer.input(this, listener));
+        builder.addContainer(energyContainer);
         return builder.build();
     }
 
