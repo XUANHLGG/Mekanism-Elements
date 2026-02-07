@@ -8,6 +8,8 @@ This folder contains user-relevant changelogs for all versions since the NeoForg
 - [3.0.1](3.0.1.md) - Fluid Rendering Fixes
 - [3.0.2](3.0.2.md) - JEI Integration & Recipe Visibility Fixes
 - [3.0.3](3.0.3.md) - Final Recipe & Scaling Fixes
+- [3.0.4](3.0.4.md) - Critical Crash Fixes & Stabilization
+- [3.0.5](3.0.5.md) - GUI Crash Fixes
 
 ## Note
 

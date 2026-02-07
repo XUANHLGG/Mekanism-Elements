@@ -33,7 +33,7 @@ public class GuiRadiationIrradiator extends GuiConfigurableTile<TileEntityRadiat
         addRenderableWidget(new GuiEnergyTab(this, tile.getEnergyContainer(), tile::getActive));
         addRenderableWidget(new GuiChemicalGauge(() -> tile.injectTank, () -> tile.getChemicalTanks(null), GaugeType.STANDARD, this, 28, 13))
                 .warning(WarningTracker.WarningType.NO_MATCHING_RECIPE, tile.getWarningCheck(CachedRecipe.OperationTracker.RecipeError.NOT_ENOUGH_SECONDARY_INPUT));
-        addRenderableWidget(new GuiMergedTankGauge(() -> tile.chemicalOutputTank, () -> tile, GaugeType.STANDARD, this, 131, 13))
+        addRenderableWidget(new GuiChemicalGauge(() -> tile.chemicalOutputTank, () -> tile.getChemicalTanks(null), GaugeType.STANDARD, this, 131, 13))
                 .warning(WarningTracker.WarningType.NO_SPACE_IN_OUTPUT, tile.getWarningCheck(CachedRecipe.OperationTracker.RecipeError.NOT_ENOUGH_OUTPUT_SPACE));
         addRenderableWidget(new GuiProgress(tile::getScaledProgress, ProgressType.LARGE_RIGHT, this, 64, 40))
                 .warning(WarningTracker.WarningType.INPUT_DOESNT_PRODUCE_OUTPUT, tile.getWarningCheck(CachedRecipe.OperationTracker.RecipeError.INPUT_DOESNT_PRODUCE_OUTPUT));
