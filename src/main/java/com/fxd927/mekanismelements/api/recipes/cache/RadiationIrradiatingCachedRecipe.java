@@ -104,9 +104,6 @@ public class RadiationIrradiatingCachedRecipe extends CachedRecipe<RadiationIrra
         //Validate something didn't go horribly wrong
         if (!recipeItem.isEmpty() && !recipeGas.isEmpty() && !output.isEmpty()) {
             itemInputHandler.use(recipeItem, operations);
-            if (gasUsageMultiplier > 0) {
-                gasInputHandler.use(recipeGas, operations * gasUsageMultiplier);
-            }
             outputHandler.handleOutput(output, operations);
         }
     }

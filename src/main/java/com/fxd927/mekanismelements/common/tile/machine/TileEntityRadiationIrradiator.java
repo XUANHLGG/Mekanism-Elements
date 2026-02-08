@@ -1,5 +1,7 @@
 package com.fxd927.mekanismelements.common.tile.machine;
 
+import mekanism.common.tile.component.config.ConfigInfo;
+import mekanism.common.tile.component.config.DataType;
 import com.fxd927.mekanismelements.api.recipes.RadiationIrradiatingRecipe;
 import com.fxd927.mekanismelements.api.recipes.cache.RadiationIrradiatingCachedRecipe;
 import com.fxd927.mekanismelements.common.recipe.IMSRecipeTypeProvider;
@@ -70,9 +72,6 @@ public class TileEntityRadiationIrradiator extends MSTileEntityProgressMachine<R
             "getChemicalInputFilledPercentage"}, docPlaceholder = "chemical input tank")
     public IChemicalTank injectTank;
     public IChemicalTank chemicalOutputTank;
-    public IChemicalTank infusionOutputTank;
-    public IChemicalTank pigmentOutputTank;
-    public IChemicalTank slurryOutputTank;
     public double injectUsage = 1;
 
     private final IOutputHandler<ChemicalStack> outputHandler;
@@ -93,11 +92,24 @@ public class TileEntityRadiationIrradiator extends MSTileEntityProgressMachine<R
         super(MSBlocks.RADIATION_IRRADIATOR, pos, state, TRACKED_ERROR_TYPES, BASE_TICKS_REQUIRED);
         // Config is created from block attributes in parent constructor
         getConfig().setupItemIOExtraConfig(inputSlot, outputSlot, chemicalInputSlot, energySlot);
-        getConfig().setupIOConfig(TransmissionType.CHEMICAL, injectTank, chemicalOutputTank, RelativeSide.RIGHT).setEjecting(true);
-        getConfig().setupOutputConfig(TransmissionType.CHEMICAL, infusionOutputTank, RelativeSide.RIGHT);
-        getConfig().setupOutputConfig(TransmissionType.CHEMICAL, pigmentOutputTank, RelativeSide.RIGHT);
-        getConfig().setupOutputConfig(TransmissionType.CHEMICAL, slurryOutputTank, RelativeSide.RIGHT);
-        getConfig().setupInputConfig(TransmissionType.ENERGY, energyContainer);
+        
+        // Chemical I/O Config - LEFT for input, RIGHT for output
+        ConfigInfo chemicalConfig = getConfig().setupIOConfig(TransmissionType.CHEMICAL, injectTank, chemicalOutputTank, RelativeSide.RIGHT);
+        if (chemicalConfig != null) {
+            chemicalConfig.setDataType(DataType.INPUT, RelativeSide.LEFT);
+            chemicalConfig.setDataType(DataType.INPUT, RelativeSide.BACK);
+            chemicalConfig.setDataType(DataType.OUTPUT, RelativeSide.RIGHT);
+            chemicalConfig.setDataType(DataType.OUTPUT, RelativeSide.FRONT);
+            chemicalConfig.setEjecting(true);
+        }
+        
+        // Energy Config - all sides accept
+        ConfigInfo energyConfig = getConfig().setupInputConfig(TransmissionType.ENERGY, energyContainer);
+        if (energyConfig != null) {
+            for (RelativeSide side : RelativeSide.values()) {
+                energyConfig.setDataType(DataType.INPUT, side);
+            }
+        }
 
         ejectorComponent = new TileComponentEjector(this);
         ejectorComponent.setOutputData(getConfig(), TransmissionType.ITEM, TransmissionType.CHEMICAL)
@@ -113,43 +125,16 @@ public class TileEntityRadiationIrradiator extends MSTileEntityProgressMachine<R
         super.presetVariables();
         IContentsListener saveOnlyListener = this::markForSave;
         chemicalOutputTank = BasicChemicalTank.output(MAX_CHEMICAL, saveOnlyListener);
-        infusionOutputTank = BasicChemicalTank.output(MAX_CHEMICAL, saveOnlyListener);
-        pigmentOutputTank = BasicChemicalTank.output(MAX_CHEMICAL, saveOnlyListener);
-        slurryOutputTank = BasicChemicalTank.output(MAX_CHEMICAL, saveOnlyListener);
         injectTank = BasicChemicalTank.createModern(MAX_CHEMICAL, ChemicalTankHelper.radioactiveInputTankPredicate(() -> chemicalOutputTank),
-                ConstantPredicates.alwaysTrueBi(), this::containsRecipeB, ChemicalAttributeValidator.ALWAYS_ALLOW, saveOnlyListener);
+                ConstantPredicates.alwaysTrueBi(), s -> true, ChemicalAttributeValidator.ALWAYS_ALLOW, saveOnlyListener);
     }
 
     @NotNull
     @Override
-    public IChemicalTankHolder getInitialGasTanks(IContentsListener listener, IContentsListener recipeCacheListener) {
+    public IChemicalTankHolder getInitialChemicalTanks(IContentsListener listener) {
         ChemicalTankHelper builder = ChemicalTankHelper.forSideWithConfig(this);
         builder.addTank(injectTank);
         builder.addTank(chemicalOutputTank);
-        return builder.build();
-    }
-
-    @NotNull
-    @Override
-    public IChemicalTankHolder getInitialInfusionTanks(IContentsListener listener, IContentsListener recipeCacheListener) {
-        ChemicalTankHelper builder = ChemicalTankHelper.forSideWithConfig(this);
-        builder.addTank(infusionOutputTank);
-        return builder.build();
-    }
-
-    @NotNull
-    @Override
-    public IChemicalTankHolder getInitialPigmentTanks(IContentsListener listener, IContentsListener recipeCacheListener) {
-        ChemicalTankHelper builder = ChemicalTankHelper.forSideWithConfig(this);
-        builder.addTank(pigmentOutputTank);
-        return builder.build();
-    }
-
-    @NotNull
-    @Override
-    public IChemicalTankHolder getInitialSlurryTanks(IContentsListener listener, IContentsListener recipeCacheListener) {
-        ChemicalTankHelper builder = ChemicalTankHelper.forSideWithConfig(this);
-        builder.addTank(slurryOutputTank);
         return builder.build();
     }
 
@@ -213,7 +198,7 @@ public class TileEntityRadiationIrradiator extends MSTileEntityProgressMachine<R
     public void recalculateUpgrades(Upgrade upgrade) {
         super.recalculateUpgrades(upgrade);
         if (upgrade == Upgrade.CHEMICAL || upgrade == Upgrade.SPEED) {
-            injectUsage = MekanismUtils.getGasPerTickMeanMultiplier(this);
+            injectUsage = Math.max(1, MekanismUtils.getGasPerTickMeanMultiplier(this));
         }
     }
 

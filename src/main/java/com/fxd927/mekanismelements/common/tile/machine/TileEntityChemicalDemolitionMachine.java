@@ -1,5 +1,6 @@
 package com.fxd927.mekanismelements.common.tile.machine;
 
+import mekanism.common.tile.component.config.ConfigInfo;
 import com.fxd927.mekanismelements.api.recipes.ChemicalDemolitionRecipe;
 import com.fxd927.mekanismelements.api.recipes.cache.ChemicalDemolitionCachedRecipe;
 import com.fxd927.mekanismelements.common.recipe.IMSRecipeTypeProvider;
@@ -98,8 +99,22 @@ public class TileEntityChemicalDemolitionMachine extends MSTileEntityProgressMac
         super(null, pos, state, TRACKED_ERROR_TYPES, BASE_TICKS_REQUIRED); // Temporary fix - block is commented out
         // Config is created from block attributes in parent constructor
         getConfig().setupItemIOExtraConfig(inputSlot, firstOutputSlot, chemicalInputSlot, energySlot);
-        getConfig().setupInputConfig(TransmissionType.CHEMICAL, injectTank).setEjecting(true);
-        getConfig().setupInputConfig(TransmissionType.ENERGY, energyContainer);
+        
+        // Chemical Input Config - LEFT/BACK sides
+        ConfigInfo chemicalConfig = getConfig().setupInputConfig(TransmissionType.CHEMICAL, injectTank);
+        if (chemicalConfig != null) {
+            chemicalConfig.setDataType(mekanism.common.tile.component.config.DataType.INPUT, mekanism.api.RelativeSide.LEFT);
+            chemicalConfig.setDataType(mekanism.common.tile.component.config.DataType.INPUT, mekanism.api.RelativeSide.BACK);
+            chemicalConfig.setEjecting(true);
+        }
+        
+        // Energy Config - all sides accept
+        ConfigInfo energyConfig = getConfig().setupInputConfig(TransmissionType.ENERGY, energyContainer);
+        if (energyConfig != null) {
+            for (mekanism.api.RelativeSide side : mekanism.api.RelativeSide.values()) {
+                energyConfig.setDataType(mekanism.common.tile.component.config.DataType.INPUT, side);
+            }
+        }
 
         ejectorComponent = new TileComponentEjector(this);
         ejectorComponent.setOutputData(getConfig(), TransmissionType.ITEM, TransmissionType.CHEMICAL)

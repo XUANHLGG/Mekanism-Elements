@@ -10,6 +10,7 @@ This folder contains user-relevant changelogs for all versions since the NeoForg
 - [3.0.3](3.0.3.md) - Final Recipe & Scaling Fixes
 - [3.0.4](3.0.4.md) - Critical Crash Fixes & Stabilization
 - [3.0.5](3.0.5.md) - GUI Crash Fixes
+- [3.0.6](3.0.6.md) - Machine Processing & Side Config Fixes
 
 ## Note
 

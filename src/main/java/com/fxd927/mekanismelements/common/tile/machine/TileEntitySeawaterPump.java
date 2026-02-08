@@ -1,5 +1,6 @@
 package com.fxd927.mekanismelements.common.tile.machine;
 
+import mekanism.common.tile.component.config.ConfigInfo;
 import com.fxd927.mekanismelements.common.registries.MSBlocks;
 import com.fxd927.mekanismelements.common.registries.MSFluids;
 import mekanism.api.*;
@@ -69,8 +70,22 @@ public class TileEntitySeawaterPump extends TileEntityConfigurableMachine implem
         super(MSBlocks.SEAWATER_PUMP, pos, state);
         // Config is created from block attributes in parent constructor
         getConfig().setupItemIOConfig(List.of(inputSlot),List.of(outputSlot),energySlot,true);
-        getConfig().setupOutputConfig(TransmissionType.FLUID , fluidTank , RelativeSide.TOP);
-        getConfig().setupInputConfig(TransmissionType.ENERGY , energyContainer);
+        
+        // Fluid Output Config - TOP and RIGHT sides
+        ConfigInfo fluidConfig = getConfig().setupOutputConfig(TransmissionType.FLUID , fluidTank , RelativeSide.TOP);
+        if (fluidConfig != null) {
+            fluidConfig.setDataType(mekanism.common.tile.component.config.DataType.OUTPUT, RelativeSide.TOP);
+            fluidConfig.setDataType(mekanism.common.tile.component.config.DataType.OUTPUT, RelativeSide.RIGHT);
+            fluidConfig.setDataType(mekanism.common.tile.component.config.DataType.OUTPUT, RelativeSide.FRONT);
+        }
+        
+        // Energy Config - all sides accept
+        ConfigInfo energyConfig = getConfig().setupInputConfig(TransmissionType.ENERGY , energyContainer);
+        if (energyConfig != null) {
+            for (RelativeSide side : RelativeSide.values()) {
+                energyConfig.setDataType(mekanism.common.tile.component.config.DataType.INPUT, side);
+            }
+        }
 
         ejectorComponent = new TileComponentEjector(this);
         ejectorComponent.setOutputData(getConfig(),TransmissionType.ITEM)

@@ -101,9 +101,7 @@ public class AdsorptionCachedRecipe extends CachedRecipe<AdsorptionRecipe> {
     @Override
     protected void finishProcessing(int operations) {
         if (!recipeItem.isEmpty() && !recipeFluid.isEmpty() && !output.isEmpty()) {
-            if (fluidUsageMultiplier > 0) {
-                fluidInputHandler.use(recipeFluid, operations * fluidUsageMultiplier);
-            }
+            itemInputHandler.use(recipeItem, operations);
             outputHandler.handleOutput(output, operations);
         }
     }

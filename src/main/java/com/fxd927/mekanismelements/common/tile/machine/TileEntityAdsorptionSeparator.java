@@ -1,5 +1,7 @@
 package com.fxd927.mekanismelements.common.tile.machine;
 
+import mekanism.common.tile.component.config.ConfigInfo;
+import mekanism.common.tile.component.config.DataType;
 import com.fxd927.mekanismelements.api.recipes.AdsorptionRecipe;
 import com.fxd927.mekanismelements.api.recipes.cache.AdsorptionCachedRecipe;
 import com.fxd927.mekanismelements.common.inventory.slot.MSInputInventorySlot;
@@ -75,9 +77,6 @@ public class TileEntityAdsorptionSeparator extends MSTileEntityProgressMachine<A
                 "getChemicalInputFilledPercentage"}, docPlaceholder = "chemical input tank")
         public BasicFluidTank inputTank;
         public IChemicalTank chemicalOutputTank;
-        public IChemicalTank infusionOutputTank;
-        public IChemicalTank pigmentOutputTank;
-        public IChemicalTank slurryOutputTank;
         public double injectUsage = 1;
 
         private final IOutputHandler<ChemicalStack> outputHandler;
@@ -96,12 +95,28 @@ public class TileEntityAdsorptionSeparator extends MSTileEntityProgressMachine<A
             super(MSBlocks.ADSORPTION_SEPARATOR, pos, state, TRACKED_ERROR_TYPES, BASE_TICKS_REQUIRED);
             // Config is created from block attributes in parent constructor
             getConfig().setupItemIOConfig(inputSlot, outputSlot, energySlot);
-            getConfig().setupInputConfig(TransmissionType.FLUID, inputTank);
-            getConfig().setupOutputConfig(TransmissionType.CHEMICAL, chemicalOutputTank, RelativeSide.RIGHT);
-            getConfig().setupOutputConfig(TransmissionType.CHEMICAL, infusionOutputTank, RelativeSide.RIGHT);
-            getConfig().setupOutputConfig(TransmissionType.CHEMICAL, pigmentOutputTank, RelativeSide.RIGHT);
-            getConfig().setupOutputConfig(TransmissionType.CHEMICAL, slurryOutputTank, RelativeSide.RIGHT);
-            getConfig().setupInputConfig(TransmissionType.ENERGY, energyContainer);
+            
+            // Fluid Input Config - LEFT side default
+            ConfigInfo fluidConfig = getConfig().setupInputConfig(TransmissionType.FLUID, inputTank);
+            if (fluidConfig != null) {
+                fluidConfig.setDataType(DataType.INPUT, RelativeSide.LEFT);
+                fluidConfig.setDataType(DataType.INPUT, RelativeSide.BACK);
+            }
+            
+            // Chemical Output Config - RIGHT side default
+            ConfigInfo chemicalConfig = getConfig().setupOutputConfig(TransmissionType.CHEMICAL, chemicalOutputTank, RelativeSide.RIGHT);
+            if (chemicalConfig != null) {
+                chemicalConfig.setDataType(DataType.OUTPUT, RelativeSide.RIGHT);
+                chemicalConfig.setDataType(DataType.OUTPUT, RelativeSide.FRONT);
+            }
+            
+            // Energy Config - all sides accept
+            ConfigInfo energyConfig = getConfig().setupInputConfig(TransmissionType.ENERGY, energyContainer);
+            if (energyConfig != null) {
+                for (RelativeSide side : RelativeSide.values()) {
+                    energyConfig.setDataType(DataType.INPUT, side);
+                }
+            }
 
             ejectorComponent = new TileComponentEjector(this);
             ejectorComponent.setOutputData(getConfig(), TransmissionType.ITEM, TransmissionType.FLUID, TransmissionType.CHEMICAL)
@@ -117,51 +132,23 @@ public class TileEntityAdsorptionSeparator extends MSTileEntityProgressMachine<A
             super.presetVariables();
             IContentsListener saveOnlyListener = this::markForSave;
             chemicalOutputTank = BasicChemicalTank.output(MAX_CHEMICAL, saveOnlyListener);
-            infusionOutputTank = BasicChemicalTank.output(MAX_CHEMICAL, saveOnlyListener);
-            pigmentOutputTank = BasicChemicalTank.output(MAX_CHEMICAL, saveOnlyListener);
-            slurryOutputTank = BasicChemicalTank.output(MAX_CHEMICAL, saveOnlyListener);
         }
 
     @NotNull
     @Override
     protected IFluidTankHolder getInitialFluidTanks(IContentsListener listener, IContentsListener recipeCacheListener) {
         FluidTankHelper builder = FluidTankHelper.forSideWithConfig(this);
-        builder.addTank(inputTank = BasicFluidTank.create(10_000, fluid -> containsRecipeB(inputTank.getFluid()),
-                this::containsRecipeB, recipeCacheListener));
+        builder.addTank(inputTank = BasicFluidTank.create(10_000, this::containsRecipeB, this::containsRecipeB, recipeCacheListener));
         return builder.build();
     }
 
-        @NotNull
-        @Override
-        public IChemicalTankHolder getInitialGasTanks(IContentsListener listener, IContentsListener recipeCacheListener) {
-            ChemicalTankHelper builder = ChemicalTankHelper.forSideWithConfig(this);
-           builder.addTank(chemicalOutputTank);
-            return builder.build();
-        }
-
-        @NotNull
-        @Override
-        public IChemicalTankHolder getInitialInfusionTanks(IContentsListener listener, IContentsListener recipeCacheListener) {
-            ChemicalTankHelper builder = ChemicalTankHelper.forSideWithConfig(this);
-            builder.addTank(infusionOutputTank);
-            return builder.build();
-        }
-
-        @NotNull
-        @Override
-        public IChemicalTankHolder getInitialPigmentTanks(IContentsListener listener, IContentsListener recipeCacheListener) {
-            ChemicalTankHelper builder = ChemicalTankHelper.forSideWithConfig(this);
-            builder.addTank(pigmentOutputTank);
-            return builder.build();
-        }
-
-        @NotNull
-        @Override
-        public IChemicalTankHolder getInitialSlurryTanks(IContentsListener listener, IContentsListener recipeCacheListener) {
-            ChemicalTankHelper builder = ChemicalTankHelper.forSideWithConfig(this);
-            builder.addTank(slurryOutputTank);
-            return builder.build();
-        }
+    @NotNull
+    @Override
+    public IChemicalTankHolder getInitialChemicalTanks(IContentsListener listener) {
+        ChemicalTankHelper builder = ChemicalTankHelper.forSideWithConfig(this);
+        builder.addTank(chemicalOutputTank);
+        return builder.build();
+    }
 
         @NotNull
         @Override
@@ -184,15 +171,13 @@ public class TileEntityAdsorptionSeparator extends MSTileEntityProgressMachine<A
         }
 
         @Override
-        protected boolean onUpdateServer() {
-            if (super.onUpdateServer()) {
-                energySlot.fillContainerOrConvert();
-                outputSlot.drainTank();
-                recipeCacheLookupMonitor.updateAndProcess();
-                return true;
-            }
-            return false;
-        }
+    protected boolean onUpdateServer() {
+        boolean needsUpdate = super.onUpdateServer();
+        energySlot.fillContainerOrConvert();
+        outputSlot.drainTank();
+        recipeCacheLookupMonitor.updateAndProcess();
+        return needsUpdate;
+    }
 
         @Override
         public IMSRecipeTypeProvider<AdsorptionRecipe, MSInputRecipeCache.ItemFluid<AdsorptionRecipe>> getMSRecipeType() {

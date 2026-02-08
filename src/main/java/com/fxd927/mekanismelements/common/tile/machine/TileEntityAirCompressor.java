@@ -78,9 +78,17 @@ public class TileEntityAirCompressor extends TileEntityConfigurableMachine {
         // Config is created from block attributes in parent constructor
         // Capabilities are added via tile entity type builder
         getConfig().setupItemIOConfig(List.of(inputSlot),List.of(outputSlot),energySlot,true);
-        getConfig().setupOutputConfig(TransmissionType.CHEMICAL , chemicalTank);
+        
+        // Chemical Output Config - TOP/RIGHT/FRONT sides
+        ConfigInfo chemicalConfig = getConfig().setupOutputConfig(TransmissionType.CHEMICAL , chemicalTank);
+        if (chemicalConfig != null) {
+            chemicalConfig.setDataType(DataType.OUTPUT, mekanism.api.RelativeSide.TOP);
+            chemicalConfig.setDataType(DataType.OUTPUT, mekanism.api.RelativeSide.RIGHT);
+            chemicalConfig.setDataType(DataType.OUTPUT, mekanism.api.RelativeSide.FRONT);
+        }
+        
+        // Energy Config - all sides accept input by default
         ConfigInfo energyConfig = getConfig().setupInputConfig(TransmissionType.ENERGY , energyContainer);
-        // Set all sides to INPUT by default for energy
         if (energyConfig != null) {
             for (mekanism.api.RelativeSide side : mekanism.common.util.EnumUtils.SIDES) {
                 energyConfig.setDataType(DataType.INPUT, side);
@@ -89,8 +97,6 @@ public class TileEntityAirCompressor extends TileEntityConfigurableMachine {
 
         ejectorComponent = new TileComponentEjector(this);
         ejectorComponent.setOutputData(getConfig(),TransmissionType.ITEM)
-                .setCanEject(type -> canFunction());
-        ejectorComponent.setOutputData(getConfig(),TransmissionType.CHEMICAL)
                 .setCanEject(type -> canFunction());
         ejectorComponent.setOutputData(getConfig(),TransmissionType.CHEMICAL)
                 .setCanEject(type -> canFunction());
