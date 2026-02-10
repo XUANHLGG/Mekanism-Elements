@@ -124,6 +124,7 @@ public abstract class DrugSyringe extends Item {
 
 
     @Override
+    @SuppressWarnings("removal")
     public void initializeClient(java.util.function.Consumer<net.neoforged.neoforge.client.extensions.common.IClientItemExtensions> consumer) {
         ItemProperties.register(this, ResourceLocation.fromNamespaceAndPath("mekanismelements", "use_count"),
                 (stack, level, entity, seed) -> {

@@ -8,6 +8,7 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.data.event.GatherDataEvent;
 
 @EventBusSubscriber(modid = MekanismElements.MODID, bus = EventBusSubscriber.Bus.MOD)
+@SuppressWarnings("removal")
 public class DataGenerators {
 
     @SubscribeEvent

@@ -89,27 +89,25 @@ public class MSRecipeType<RECIPE extends MekanismRecipe<?>, INPUT_CACHE extends 
             if (FMLEnvironment.dist.isClient()) {
                 world = MekanismClient.tryGetClientWorld();
             } else {
-                world = ServerLifecycleHooks.getCurrentServer().overworld();
+                try {
+                    world = ServerLifecycleHooks.getCurrentServer().overworld();
+                } catch (Exception e) {
+                    return Collections.emptyList();
+                }
             }
             if (world == null) {
-                MekanismElements.logger.info("MSRecipeType.getRecipes: World is null, returning empty list.");
                 return Collections.emptyList();
             }
         }
-        if (cachedRecipes.isEmpty() && world != null) {
-            RecipeManager recipeManager = world.getRecipeManager();
+        return getRecipes(world.getRecipeManager());
+    }
+
+    @NotNull
+    public List<RECIPE> getRecipes(RecipeManager recipeManager) {
+        if (cachedRecipes.isEmpty()) {
             @SuppressWarnings({"unchecked", "rawtypes"})
             List<RecipeHolder<RECIPE>> recipeHolders = (List) recipeManager.getAllRecipesFor((RecipeType) this);
-            MekanismElements.logger.info("MSRecipeType.getRecipes: Found {} recipes for type {}", recipeHolders.size(), registryName);
 
-            // DEBUG: List all recipes in manager to see if ours are even there
-            List<RecipeHolder<?>> allRecipes = (List) recipeManager.getRecipes();
-            MekanismElements.logger.info("DEBUG: Total recipes in manager: {}", allRecipes.size());
-            for (RecipeHolder<?> h : allRecipes) {
-                if (h.id().getNamespace().equals(MekanismElements.MODID)) {
-                    MekanismElements.logger.info("DEBUG: Found MekanismElements recipe: {} (Type: {})", h.id(), h.value().getType());
-                }
-            }
             cachedRecipes = recipeHolders.stream()
                     .map(holder -> {
                         RECIPE recipe = holder.value();
@@ -122,9 +120,7 @@ public class MSRecipeType<RECIPE extends MekanismRecipe<?>, INPUT_CACHE extends 
                         }
                         return recipe;
                     })
-                    //.filter(recipe -> !recipe.isIncomplete()) // DEBUG: Disable filter
                     .toList();
-            MekanismElements.logger.info("MSRecipeType.getRecipes: Cached {} recipes", cachedRecipes.size());
         }
         return cachedRecipes;
     }

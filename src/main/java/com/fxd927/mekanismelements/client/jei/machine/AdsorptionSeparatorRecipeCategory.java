@@ -76,8 +76,7 @@ public class AdsorptionSeparatorRecipeCategory extends BaseRecipeCategory<Adsorp
 
     @Override
     public com.mojang.serialization.Codec<AdsorptionRecipe> getCodec(ICodecHelper codecHelper, IRecipeManager recipeManager) {
-        // Codec should be provided by the recipe serializer
-        return com.mojang.serialization.Codec.unit(null);
+        return com.fxd927.mekanismelements.common.registries.MSRecipeSerializers.ADSORPTION_SEPARATOR.get().codec().codec();
     }
 
     @Override

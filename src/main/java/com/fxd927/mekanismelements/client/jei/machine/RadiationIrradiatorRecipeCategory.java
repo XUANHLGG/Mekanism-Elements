@@ -74,8 +74,7 @@ public class RadiationIrradiatorRecipeCategory extends BaseRecipeCategory<Radiat
 
     @Override
     public com.mojang.serialization.Codec<RadiationIrradiatingRecipe> getCodec(ICodecHelper codecHelper, IRecipeManager recipeManager) {
-        // Codec should be provided by the recipe serializer
-        return com.mojang.serialization.Codec.unit(null);
+        return com.fxd927.mekanismelements.common.registries.MSRecipeSerializers.RADIATION_IRRADIATOR.get().codec().codec();
     }
 
     @Override
